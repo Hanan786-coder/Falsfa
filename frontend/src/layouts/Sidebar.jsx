@@ -8,7 +8,7 @@ import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip
 import { Separator } from '@/components/ui/separator'
 import {
   LayoutDashboard, Users, GraduationCap, BookOpen, DollarSign, Settings,
-  School, CreditCard, BarChart3, ClipboardList, CalendarDays, UserCircle,
+  School, CreditCard, BarChart3, ClipboardList, CalendarDays,
   ChevronLeft, ChevronRight, LogOut,
 } from 'lucide-react'
 
@@ -44,7 +44,7 @@ export default function Sidebar({ collapsed, onToggle }) {
     <aside
       className={cn(
         'fixed left-0 top-0 z-40 flex h-screen flex-col border-r bg-sidebar text-sidebar-foreground transition-all duration-300 ease-in-out',
-        collapsed ? 'w-[68px]' : 'w-[260px]'
+        collapsed ? 'w-17' : 'w-65'
       )}
     >
       {/* Logo / Brand */}

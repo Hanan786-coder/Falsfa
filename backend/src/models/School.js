@@ -63,6 +63,10 @@ const schoolSchema = new mongoose.Schema(
             totalStaff: { type: Number, default: 0 },
             totalClasses: { type: Number, default: 0 },
         },
+
+        // Custom Settings
+        customClasses: { type: [String], default: [] },
+        customSections: { type: [String], default: [] },
     },
     {
         timestamps: true, // Auto-adds createdAt and updatedAt fields

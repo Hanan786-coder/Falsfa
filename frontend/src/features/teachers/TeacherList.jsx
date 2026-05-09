@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 import api from '@/lib/api'
 import {
   useReactTable, getCoreRowModel, getFilteredRowModel,
@@ -7,7 +7,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent } from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -41,7 +41,7 @@ export default function TeacherList() {
         setStaff(res.data.data)
       }
     } catch (err) {
-      toast.error('Failed to load teachers')
+      toast.error(err.message || 'Failed to load teachers')
     } finally {
       setLoading(false)
     }
@@ -58,7 +58,7 @@ export default function TeacherList() {
       toast.success('Teacher removed')
       fetchStaff()
     } catch (err) {
-      toast.error('Failed to remove teacher')
+      toast.error(err.message || 'Failed to remove teacher')
     } finally {
       setDeleting(false)
       setDeleteConfirmId(null)
@@ -293,7 +293,7 @@ function TeacherFormDialog({ open, onClose, initialData, onSuccess }) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-125">
         <DialogHeader>
           <DialogTitle>{isEditing ? 'Edit Teacher' : 'Add New Teacher'}</DialogTitle>
         </DialogHeader>

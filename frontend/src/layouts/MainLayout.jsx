@@ -25,13 +25,13 @@ export default function MainLayout() {
 
         {/* Mobile Sidebar */}
         <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
-          <SheetContent side="left" className="w-[260px] p-0">
+          <SheetContent side="left" className="w-65 p-0">
             <Sidebar collapsed={false} onToggle={() => setMobileOpen(false)} />
           </SheetContent>
         </Sheet>
 
         {/* Main Content */}
-        <div className={cn('flex flex-col transition-all duration-300 ease-in-out', collapsed ? 'lg:pl-[68px]' : 'lg:pl-[260px]')}>
+        <div className={cn('flex flex-col transition-all duration-300 ease-in-out', collapsed ? 'lg:pl-17' : 'lg:pl-65')}>
           <Header onMobileMenuToggle={() => setMobileOpen(true)} />
           <main className="flex-1 p-6">
             <Outlet />

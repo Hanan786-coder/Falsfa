@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Building, Phone, Mail, Globe, MapPin, Calendar, Loader2, Save } from 'lucide-react'
+import { Building, Phone, Mail, Globe, MapPin, Calendar, Loader2, Save} from 'lucide-react'
 import { toast } from 'sonner'
 import { useTenant } from '@/context/TenantContext'
 
@@ -18,7 +18,9 @@ export default function SchoolSettingsPage() {
     phone: '',
     website: '',
     currentSession: '',
-    address: { street: '', city: '', state: '', zip: '', country: 'Pakistan' }
+    address: { street: '', city: '', state: '', zip: '', country: 'Pakistan' },
+    customClasses: [],
+    customSections: []
   })
 
   useEffect(() => {
@@ -33,7 +35,9 @@ export default function SchoolSettingsPage() {
             phone: s.phone || '',
             website: s.website || '',
             currentSession: s.currentSession || '',
-            address: s.address || { street: '', city: '', state: '', zip: '', country: 'Pakistan' }
+            address: s.address || { street: '', city: '', state: '', zip: '', country: 'Pakistan' },
+            customClasses: s.customClasses || [],
+            customSections: s.customSections || []
           })
         }
       } catch (err) {

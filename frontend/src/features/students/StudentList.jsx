@@ -9,7 +9,7 @@ import { formatDate } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Card, CardContent} from '@/components/ui/card'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import {
@@ -18,7 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import {
-  Search, Plus, MoreHorizontal, Eye, Pencil, CreditCard,
+  Search, Plus, MoreHorizontal, Eye, Pencil,
   ChevronLeft, ChevronRight, Users, ArrowUpDown, User, Mail, Calendar, Phone, Hash
 } from 'lucide-react'
 
@@ -185,7 +185,7 @@ export default function StudentList() {
               />
             </div>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-[160px]">
+              <SelectTrigger className="w-40">
                 <SelectValue placeholder="Filter status" />
               </SelectTrigger>
               <SelectContent>
@@ -263,7 +263,7 @@ export default function StudentList() {
       />
 
       <Dialog open={!!viewingStudent} onOpenChange={() => setViewingStudent(null)}>
-        <DialogContent className="sm:max-w-[450px]">
+        <DialogContent className="sm:max-w-112.5">
           <DialogHeader>
             <DialogTitle>Student Profile</DialogTitle>
             <DialogDescription>Overview of student details and enrollment.</DialogDescription>

@@ -29,7 +29,7 @@ export default function SubscriptionsPage() {
         setSchools(res.data.data)
       }
     } catch (err) {
-      toast.error('Failed to load subscriptions')
+      toast.error(err.message || 'Failed to load subscriptions')
     } finally {
       setLoading(false)
     }
