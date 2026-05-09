@@ -104,7 +104,7 @@ const columns = [
 ]
 
 export default function StudentList() {
-  const { data: students, isLoading } = useStudents()
+  const { data: students, isLoading, refetch } = useStudents()
   const [formOpen, setFormOpen] = useState(false)
   const [sorting, setSorting] = useState([])
   const [columnFilters, setColumnFilters] = useState([])
@@ -253,7 +253,7 @@ export default function StudentList() {
         </div>
       </Card>
 
-      <StudentForm open={formOpen} onClose={() => setFormOpen(false)} />
+      <StudentForm open={formOpen} onClose={() => setFormOpen(false)} onSuccess={refetch} />
     </div>
   )
 }

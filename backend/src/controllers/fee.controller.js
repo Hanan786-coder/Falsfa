@@ -26,13 +26,24 @@ exports.getFeeStructures = async (req, res) => {
 exports.upsertFeeStructure = async (req, res) => {
   try {
     const { class: className, academicYear, tuitionFee, examFee, libraryFee, miscFee } = req.body;
+    const structureId = req.params.id; // For updates, if provided
     const schoolId = req.schoolId;
 
-    const structure = await FeeStructure.findOneAndUpdate(
-      { school: schoolId, class: className, academicYear: academicYear || "2024-2025" },
-      { tuitionFee, examFee, libraryFee, miscFee, isActive: true },
-      { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true }
-    );
+    let structure;
+    
+    if (structureId) {
+      structure = await FeeStructure.findByIdAndUpdate(
+        structureId,
+        { tuitionFee, examFee, libraryFee, miscFee, isActive: true },
+        { new: true, runValidators: true }
+      );
+    } else {
+      structure = await FeeStructure.findOneAndUpdate(
+        { school: schoolId, class: className, academicYear: academicYear || "2024-2025" },
+        { tuitionFee, examFee, libraryFee, miscFee, isActive: true },
+        { upsert: true, new: true, runValidators: true, setDefaultsOnInsert: true }
+      );
+    }
 
     res.status(201).json({ success: true, data: structure });
   } catch (error) {
@@ -40,90 +51,125 @@ exports.upsertFeeStructure = async (req, res) => {
   }
 };
 
+// ── DELETE /api/fees/structures/:id ─────────────────────────
+exports.deleteFeeStructure = async (req, res) => {
+  try {
+    const structureId = req.params.id;
+    const structure = await FeeStructure.findOneAndDelete({ _id: structureId, school: req.schoolId });
+    if (!structure) {
+      return res.status(404).json({ success: false, message: "Fee structure not found" });
+    }
+    res.json({ success: true, message: "Fee structure deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // ── POST /api/fees/generate ─────────────────────────────────
-// Bulk-generate fee vouchers for all students in a class for a given month
+// Bulk-generate fee vouchers for all classes or a specific class for a given month
 exports.generateFees = async (req, res) => {
   try {
     const { class: className, month, academicYear, dueDate } = req.body;
     const schoolId = req.schoolId;
 
-    // 1. Find the fee structure for this class
-    const structure = await FeeStructure.findOne({
-      school: schoolId,
-      class: className,
-      academicYear: academicYear || "2024-2025",
-      isActive: true,
-    });
+    let targetClasses = [];
+    if (className === "all") {
+      const structures = await FeeStructure.find({ school: schoolId, isActive: true, academicYear: academicYear || "2024-2025" });
+      targetClasses = structures.map(s => s.class);
+    } else {
+      targetClasses = [className];
+    }
 
-    if (!structure) {
+    if (targetClasses.length === 0) {
       return res.status(404).json({
         success: false,
-        message: `No fee structure found for Class ${className}. Please set it up first.`,
+        message: "No classes found to generate vouchers for.",
       });
     }
 
-    const total = structure.tuitionFee + structure.examFee + structure.libraryFee + structure.miscFee;
+    let totalGenerated = 0;
+    let totalExisted = 0;
 
-    // 2. Get all active students in this class
-    const students = await Student.find({
-      school: schoolId,
-      class: className,
-      isActive: true,
-    }).select("_id name");
+    for (let currentClass of targetClasses) {
+      // 1. Find the fee structure for this class
+      const structure = await FeeStructure.findOne({
+        school: schoolId,
+        class: currentClass,
+        academicYear: academicYear || "2024-2025",
+        isActive: true,
+      });
 
-    if (students.length === 0) {
-      return res.status(404).json({ success: false, message: `No active students found in Class ${className}` });
+      if (!structure) {
+         continue; // skip if no structure defined yet
+      }
+
+      const total = structure.tuitionFee + structure.examFee + structure.libraryFee + structure.miscFee;
+
+      // 2. Get all active students in this class
+      const students = await Student.find({
+        school: schoolId,
+        class: currentClass,
+        isActive: true,
+      }).select("_id name");
+
+      if (students.length === 0) {
+        continue;
+      }
+
+      // 3. Build voucher documents, skip if already exists
+      const existingVouchers = await Fee.find({
+        school: schoolId,
+        month,
+        student: { $in: students.map((s) => s._id) },
+      }).select("student");
+
+      const existingStudentIds = new Set(existingVouchers.map((v) => v.student.toString()));
+      totalExisted += existingStudentIds.size;
+
+      const newVouchers = students
+        .filter((s) => !existingStudentIds.has(s._id.toString()))
+        .map((s) => ({
+          school:      schoolId,
+          student:     s._id,
+          studentName: s.name,
+          class:       currentClass,
+          month,
+          academicYear: academicYear || "2024-2025",
+          tuitionFee:  structure.tuitionFee,
+          examFee:     structure.examFee,
+          libraryFee:  structure.libraryFee,
+          miscFee:     structure.miscFee,
+          totalAmount: total,
+          discount:    0,
+          netAmount:   total,
+          dueDate:     dueDate ? new Date(dueDate) : null,
+          status:      "pending",
+        }));
+
+      if (newVouchers.length > 0) {
+        await Fee.insertMany(newVouchers);
+        totalGenerated += newVouchers.length;
+      }
     }
 
-    // 3. Build voucher documents, skip if already exists
-    const existingVouchers = await Fee.find({
-      school: schoolId,
-      month,
-      student: { $in: students.map((s) => s._id) },
-    }).select("student");
-
-    const existingStudentIds = new Set(existingVouchers.map((v) => v.student.toString()));
-
-    const newVouchers = students
-      .filter((s) => !existingStudentIds.has(s._id.toString()))
-      .map((s) => ({
-        school:      schoolId,
-        student:     s._id,
-        studentName: s.name,
-        class:       className,
-        month,
-        academicYear: academicYear || "2024-2025",
-        tuitionFee:  structure.tuitionFee,
-        examFee:     structure.examFee,
-        libraryFee:  structure.libraryFee,
-        miscFee:     structure.miscFee,
-        totalAmount: total,
-        discount:    0,
-        netAmount:   total,
-        dueDate:     dueDate ? new Date(dueDate) : null,
-        status:      "pending",
-      }));
-
-    if (newVouchers.length === 0) {
+    if (totalGenerated === 0) {
       return res.status(409).json({
         success: false,
-        message: `Fee vouchers for Class ${className} — ${month} already exist for all students.`,
+        message: `No new fee vouchers generated. Vouchers might already exist or fee structures might be missing.`,
       });
     }
-
-    await Fee.insertMany(newVouchers);
 
     await logAction(req.user, {
       action:      "FEE_GENERATED",
       entity:      "Fee",
-      entityName:  `Class ${className} — ${month}`,
+      entityName:  className === "all" ? `All Classes — ${month}` : `Class ${className} — ${month}`,
       school:      schoolId,
-      description: `Fee vouchers generated for ${newVouchers.length} students in Class ${className} for ${month}`,
+      description: `Fee vouchers generated for ${totalGenerated} students in ${className === "all" ? 'All Classes' : `Class ${className}`} for ${month}`,
     });
 
     res.status(201).json({
       success: true,
-      message: `${newVouchers.length} fee vouchers generated (${existingStudentIds.size} already existed)`,
+      message: `${totalGenerated} fee vouchers generated (${totalExisted} already existed)`,
     });
   } catch (error) {
     res.status(400).json({ success: false, message: error.message });

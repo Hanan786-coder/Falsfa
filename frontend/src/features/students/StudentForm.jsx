@@ -6,10 +6,10 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetFooter } from '@/components/ui/sheet'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog'
 import { Loader2, UserPlus } from 'lucide-react'
 
-export default function StudentForm({ open, onClose }) {
+export default function StudentForm({ open, onClose, onSuccess }) {
   const { mutate, isLoading } = useCreateStudent()
   const { register, handleSubmit, setValue, reset, formState: { errors } } = useForm({
     resolver: zodResolver(studentSchema),
@@ -21,20 +21,21 @@ export default function StudentForm({ open, onClose }) {
       onSuccess: () => {
         reset()
         onClose()
+        if (onSuccess) onSuccess()
       },
     })
   }
 
   return (
-    <Sheet open={open} onOpenChange={onClose}>
-      <SheetContent className="overflow-y-auto">
-        <SheetHeader>
-          <SheetTitle className="flex items-center gap-2">
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
             <UserPlus className="h-5 w-5 text-primary" />
             Add New Student
-          </SheetTitle>
-          <SheetDescription>Fill in the student details below. All fields marked with * are required.</SheetDescription>
-        </SheetHeader>
+          </DialogTitle>
+          <DialogDescription>Fill in the student details below. All fields marked with * are required.</DialogDescription>
+        </DialogHeader>
 
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 mt-6">
           <div className="space-y-2">
@@ -102,15 +103,15 @@ export default function StudentForm({ open, onClose }) {
             {errors.email && <p className="text-xs text-destructive">{errors.email.message}</p>}
           </div>
 
-          <SheetFooter className="pt-4">
+          <DialogFooter className="pt-4">
             <Button type="button" variant="outline" onClick={onClose}>Cancel</Button>
             <Button type="submit" disabled={isLoading}>
               {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-4 w-4" />}
               Add Student
             </Button>
-          </SheetFooter>
+          </DialogFooter>
         </form>
-      </SheetContent>
-    </Sheet>
+      </DialogContent>
+    </Dialog>
   )
 }

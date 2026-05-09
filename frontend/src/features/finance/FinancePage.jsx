@@ -5,12 +5,18 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { DollarSign, CheckCircle2, AlertCircle, Clock, Loader2, Plus, DownloadCloud, Search } from 'lucide-react'
+import { DollarSign, CheckCircle2, AlertCircle, Clock, Loader2, Plus, DownloadCloud, Search, Pencil, MoreHorizontal, Trash2 } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { toast } from 'sonner'
+import { CLASSES } from '../students/studentSchema'
 
 export default function FinancePage() {
   const [summary, setSummary] = useState(null)
@@ -122,6 +128,12 @@ function OverviewTab({ summary, loading }) {
 function StructuresTab({ structures, onRefresh, loading }) {
   const [open, setOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
+  const [editingStruct, setEditingStruct] = useState(null)
+  
+  const handleOpenEdit = (struct) => {
+    setEditingStruct(struct)
+    setOpen(true)
+  }
 
   const handleCreate = async (e) => {
     e.preventDefault()
@@ -132,14 +144,31 @@ function StructuresTab({ structures, onRefresh, loading }) {
     ;['tuitionFee', 'examFee', 'libraryFee', 'miscFee'].forEach(k => payload[k] = Number(payload[k]))
     
     try {
-      await api.post('/fees/structures', payload)
-      toast.success('Fee structure saved')
+      if (editingStruct) {
+        await api.put(`/fees/structures/${editingStruct._id}`, payload)
+        toast.success('Fee structure updated')
+      } else {
+        await api.post('/fees/structures', payload)
+        toast.success('Fee structure saved')
+      }
       setOpen(false)
+      setEditingStruct(null)
       onRefresh()
     } catch (err) {
       toast.error(err.response?.data?.message || 'Failed to save')
     } finally {
       setSubmitting(false)
+    }
+  }
+
+  const handleDelete = async (id) => {
+    if (!window.confirm('Are you sure you want to remove this Fee Structure?')) return
+    try {
+      await api.delete(`/fees/structures/${id}`)
+      toast.success('Fee structure removed')
+      onRefresh()
+    } catch (err) {
+      toast.error('Failed to remove fee structure')
     }
   }
 
@@ -150,43 +179,57 @@ function StructuresTab({ structures, onRefresh, loading }) {
           <CardTitle>Class Fee Structures</CardTitle>
           <CardDescription>Define the fee breakdown for each class.</CardDescription>
         </div>
-        <Dialog open={open} onOpenChange={setOpen}>
+        <Dialog open={open} onOpenChange={(val) => {
+          setOpen(val);
+          if (!val) setEditingStruct(null);
+        }}>
           <DialogTrigger asChild>
             <Button size="sm"><Plus className="mr-2 h-4 w-4" /> Add Structure</Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add / Update Fee Structure</DialogTitle>
+              <DialogTitle>{editingStruct ? 'Update Fee Structure' : 'Add Fee Structure'}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleCreate} className="space-y-4">
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Class</Label>
-                  <Input name="class" placeholder="e.g. 10" required />
+                  <Select name="class" defaultValue={editingStruct?.class} required disabled={!!editingStruct}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Class" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CLASSES.map((c) => (
+                        <SelectItem key={c} value={c}>
+                          {c}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="space-y-2">
                   <Label>Academic Year</Label>
-                  <Input name="academicYear" defaultValue="2024-2025" required />
+                  <Input name="academicYear" defaultValue={editingStruct?.academicYear || "2024-2025"} required />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Tuition Fee (PKR)</Label>
-                  <Input type="number" name="tuitionFee" required defaultValue={0} />
+                  <Input type="number" name="tuitionFee" required defaultValue={editingStruct?.tuitionFee || 0} />
                 </div>
                 <div className="space-y-2">
                   <Label>Exam Fee (PKR)</Label>
-                  <Input type="number" name="examFee" required defaultValue={0} />
+                  <Input type="number" name="examFee" required defaultValue={editingStruct?.examFee || 0} />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Library Fee (PKR)</Label>
-                  <Input type="number" name="libraryFee" required defaultValue={0} />
+                  <Input type="number" name="libraryFee" required defaultValue={editingStruct?.libraryFee || 0} />
                 </div>
                 <div className="space-y-2">
                   <Label>Misc Fee (PKR)</Label>
-                  <Input type="number" name="miscFee" required defaultValue={0} />
+                  <Input type="number" name="miscFee" required defaultValue={editingStruct?.miscFee || 0} />
                 </div>
               </div>
               <Button type="submit" disabled={submitting} className="w-full">
@@ -212,12 +255,31 @@ function StructuresTab({ structures, onRefresh, loading }) {
             <TableBody>
               {structures.map(s => (
                 <TableRow key={s._id}>
-                  <TableCell className="font-medium">Class {s.class}</TableCell>
+                  <TableCell className="font-medium">{s.class}</TableCell>
                   <TableCell>{formatCurrency(s.tuitionFee)}</TableCell>
                   <TableCell>{formatCurrency(s.examFee)}</TableCell>
                   <TableCell>{formatCurrency(s.libraryFee)}</TableCell>
                   <TableCell>{formatCurrency(s.miscFee)}</TableCell>
-                  <TableCell className="text-right font-bold text-primary">{formatCurrency(s.totalFee)}</TableCell>
+                  <TableCell className="text-right font-bold text-primary flex items-center justify-end gap-2">
+                    {formatCurrency(s.totalFee)}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8 ml-2">
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEdit(s)}>
+                          <Pencil className="mr-2 h-4 w-4" /> Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="cursor-pointer text-destructive focus:bg-destructive/10" onClick={() => handleDelete(s._id)}>
+                          <Trash2 className="mr-2 h-4 w-4" /> Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
                 </TableRow>
               ))}
               {structures.length === 0 && (
@@ -305,7 +367,19 @@ function VouchersTab({ vouchers, onRefresh, loading }) {
             <form onSubmit={handleGenerate} className="space-y-4">
               <div className="space-y-2">
                 <Label>Class</Label>
-                <Input name="class" placeholder="e.g. 10" required />
+                <Select name="class" required>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Class (or All)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Classes</SelectItem>
+                    {CLASSES.map((c) => (
+                      <SelectItem key={c} value={c}>
+                        {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label>Month Label</Label>
@@ -339,7 +413,7 @@ function VouchersTab({ vouchers, onRefresh, loading }) {
               {filtered.map(v => (
                 <TableRow key={v._id}>
                   <TableCell className="font-medium">{v.studentName}</TableCell>
-                  <TableCell>Class {v.class}</TableCell>
+                  <TableCell>{v.class}</TableCell>
                   <TableCell>{v.month}</TableCell>
                   <TableCell>{formatCurrency(v.netAmount)}</TableCell>
                   <TableCell>{getStatusBadge(v.status)}</TableCell>
