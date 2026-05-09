@@ -9,5 +9,6 @@ router.get("/results", getResults);
 router.get("/my-results", authorize("student"), getMyResults);
 router.post("/results", authorize("superadmin", "schooladmin", "teacher"), saveResults);
 router.get("/students", getStudentsForExam);
+router.get("/my-results", authorize("student"), getMyResults);
 
 module.exports = router;
