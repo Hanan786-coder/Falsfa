@@ -1,12 +1,15 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import MainLayout from '@/layouts/MainLayout'
 import PrivateRoute from './PrivateRoute'
+import LandingPage from '@/features/landing/LandingPage'
 import LoginPage from '@/features/auth/LoginPage'
+import RegisterPage from '@/features/auth/RegisterPage'
 import DashboardPage from '@/features/dashboard/DashboardPage'
 import StudentList from '@/features/students/StudentList'
 import ExamResultEntry from '@/features/examination/ExamResultEntry'
 import SuperAdminDashboard from '@/features/super-admin/SuperAdminDashboard'
 import UnauthorizedPage from '@/features/auth/UnauthorizedPage'
+<<<<<<< HEAD
 import ProfilePage from '@/features/profile/ProfilePage'
 import FinancePage from '@/features/finance/FinancePage'
 import AnalyticsPage from '@/features/analytics/AnalyticsPage'
@@ -15,13 +18,22 @@ import TeacherList from '@/features/teachers/TeacherList'
 import SchoolSettingsPage from '@/features/settings/SchoolSettingsPage'
 import TeacherClassesPage from '@/features/classes/TeacherClassesPage'
 import AttendancePage from '@/features/attendance/AttendancePage'
+=======
+import AttendanceEntry from '@/features/attendance/AttendanceEntry'
+import TeacherList from '@/features/teachers/TeacherList'
+import MyResults from '@/features/examination/MyResults'
+>>>>>>> 369df173091cb8dcabe5e3aa6a0578422836d632
 
 export default function AppRoutes() {
   return (
     <Routes>
+      {/* ── Public Routes ──────────────────────────────────────── */}
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
+      <Route path="/register" element={<RegisterPage />} />
       <Route path="/unauthorized" element={<UnauthorizedPage />} />
 
+      {/* ── Authenticated Routes ───────────────────────────────── */}
       <Route
         element={
           <PrivateRoute>
@@ -29,7 +41,7 @@ export default function AppRoutes() {
           </PrivateRoute>
         }
       >
-        {/* Dashboard - all roles, but super admin gets their own */}
+        {/* Dashboard - all roles */}
         <Route path="/dashboard" element={<DashboardPage />} />
 
         {/* Student Management - school admin only */}
@@ -62,6 +74,7 @@ export default function AppRoutes() {
           }
         />
 
+<<<<<<< HEAD
         {/* Placeholder routes */}
         <Route path="/teachers" element={
           <PrivateRoute allowedRoles={['schooladmin']}>
@@ -99,10 +112,50 @@ export default function AppRoutes() {
             <AnalyticsPage />
           </PrivateRoute>
         } />
+=======
+        {/* Teachers - school admin */}
+        <Route
+          path="/teachers"
+          element={
+            <PrivateRoute allowedRoles={['schooladmin']}>
+              <TeacherList />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Attendance - teacher + school admin */}
+        <Route
+          path="/attendance"
+          element={
+            <PrivateRoute allowedRoles={['schooladmin', 'teacher']}>
+              <AttendanceEntry />
+            </PrivateRoute>
+          }
+        />
+
+        {/* My Results - student only */}
+        <Route
+          path="/my-results"
+          element={
+            <PrivateRoute allowedRoles={['student']}>
+              <MyResults />
+            </PrivateRoute>
+          }
+        />
+
+        {/* Placeholder routes for remaining modules */}
+        <Route path="/finance" element={<PlaceholderPage title="Finance" />} />
+        <Route path="/my-classes" element={<PlaceholderPage title="My Classes" />} />
+        <Route path="/fee-status" element={<PlaceholderPage title="Fee Status" />} />
+        <Route path="/profile" element={<PlaceholderPage title="Profile" />} />
+        <Route path="/settings" element={<PlaceholderPage title="Settings" />} />
+        <Route path="/subscriptions" element={<PlaceholderPage title="Subscriptions" />} />
+        <Route path="/analytics" element={<PlaceholderPage title="Analytics" />} />
+>>>>>>> 369df173091cb8dcabe5e3aa6a0578422836d632
       </Route>
 
-      <Route path="/" element={<Navigate to="/dashboard" replace />} />
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      {/* Catch-all */}
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
 }

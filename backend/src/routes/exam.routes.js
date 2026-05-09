@@ -8,5 +8,6 @@ router.use(protect, tenantGuard);
 router.get("/results", getResults);
 router.post("/results", authorize("superadmin", "schooladmin", "teacher"), saveResults);
 router.get("/students", getStudentsForExam);
+router.get("/my-results", authorize("student"), getMyResults);
 
 module.exports = router;

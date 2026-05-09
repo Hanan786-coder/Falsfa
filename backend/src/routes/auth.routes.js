@@ -16,6 +16,11 @@ const {
   changePassword,
   updateProfile,
 } = require("../controllers/auth.controller");
+const { registerSchool } = require("../controllers/register.controller");
+
+// ── Public School Registration ────────────────────────────────
+// Self-service school onboarding (no auth required)
+router.post("/register-school", registerSchool);
 
 // ── Register ──────────────────────────────────────────────────
 // Creates a new user account. School admins can register teachers.
