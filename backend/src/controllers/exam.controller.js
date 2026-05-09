@@ -73,7 +73,7 @@ exports.saveResults = async (req, res) => {
   }
 };
 
-// Get students for exam entry (returns student list for a class/section)
+// Get students for exam entry (returns student list for a class/section with existing marks if any)
 exports.getStudentsForExam = async (req, res) => {
   try {
     const filter = { school: req.schoolId || req.query.school, isActive: true };
@@ -82,7 +82,32 @@ exports.getStudentsForExam = async (req, res) => {
 
     const students = await Student.find(filter)
       .select("name rollNo class section")
-      .sort({ rollNo: 1 });
+      .sort({ rollNo: 1 }).lean();
+
+    const { examType, subject } = req.query;
+    if (examType && subject) {
+      const studentIds = students.map(s => s._id);
+      const existingResults = await ExamResult.find({
+        school: filter.school,
+        student: { $in: studentIds },
+        examType,
+        subject: subject.toLowerCase()
+      }).lean();
+
+      const resultMap = {};
+      existingResults.forEach(r => {
+        resultMap[r.student.toString()] = r;
+      });
+
+      students.forEach(s => {
+        const res = resultMap[s._id.toString()];
+        if (res) {
+          s.marksObtained = res.marksObtained;
+          s.percentage = res.percentage;
+          s.grade = res.grade;
+        }
+      });
+    }
 
     res.json({ success: true, data: students });
   } catch (error) {

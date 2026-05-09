@@ -17,7 +17,7 @@ import {
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
-  Search, Plus, MoreHorizontal, Pencil, Trash2, GraduationCap, ArrowUpDown, ChevronLeft, ChevronRight, Loader2
+  Search, Plus, MoreHorizontal, Pencil, Trash2, GraduationCap, ArrowUpDown, ChevronLeft, ChevronRight, Loader2, AlertTriangle
 } from 'lucide-react'
 import { toast } from 'sonner'
 
@@ -26,6 +26,8 @@ export default function TeacherList() {
   const [loading, setLoading] = useState(true)
   const [formOpen, setFormOpen] = useState(false)
   const [editingStaff, setEditingStaff] = useState(null)
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null)
+  const [deleting, setDeleting] = useState(false)
   
   const [sorting, setSorting] = useState([])
   const [columnFilters, setColumnFilters] = useState([])
@@ -50,13 +52,16 @@ export default function TeacherList() {
   }, [])
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to remove this teacher?')) return
+    setDeleting(true)
     try {
       await api.delete(`/staff/${id}`)
       toast.success('Teacher removed')
       fetchStaff()
     } catch (err) {
       toast.error('Failed to remove teacher')
+    } finally {
+      setDeleting(false)
+      setDeleteConfirmId(null)
     }
   }
 
@@ -123,7 +128,7 @@ export default function TeacherList() {
             }}>
               <Pencil className="mr-2 h-4 w-4" /> Edit
             </DropdownMenuItem>
-            <DropdownMenuItem className="cursor-pointer text-destructive focus:bg-destructive/10" onClick={() => handleDelete(row.original._id)}>
+            <DropdownMenuItem className="cursor-pointer text-destructive focus:bg-destructive/10" onClick={() => setDeleteConfirmId(row.original._id)}>
               <Trash2 className="mr-2 h-4 w-4" /> Remove
             </DropdownMenuItem>
           </DropdownMenuContent>
@@ -234,6 +239,27 @@ export default function TeacherList() {
         initialData={editingStaff} 
         onSuccess={fetchStaff} 
       />
+
+      <Dialog open={!!deleteConfirmId} onOpenChange={(val) => !val && setDeleteConfirmId(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" />
+              Confirm Deletion
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4 text-sm text-muted-foreground">
+            Are you sure you want to remove this teacher? This action cannot be undone.
+          </div>
+          <div className="flex items-center justify-end gap-3 pt-4 border-t">
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>Cancel</Button>
+            <Button variant="destructive" onClick={() => handleDelete(deleteConfirmId)} disabled={deleting}>
+              {deleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

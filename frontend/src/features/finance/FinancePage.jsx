@@ -13,7 +13,7 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { DollarSign, CheckCircle2, AlertCircle, Clock, Loader2, Plus, DownloadCloud, Search, Pencil, MoreHorizontal, Trash2 } from 'lucide-react'
+import { DollarSign, CheckCircle2, AlertCircle, Clock, Loader2, Plus, DownloadCloud, Search, Pencil, MoreHorizontal, Trash2, AlertTriangle } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import { CLASSES } from '../students/studentSchema'
@@ -129,6 +129,8 @@ function StructuresTab({ structures, onRefresh, loading }) {
   const [open, setOpen] = useState(false)
   const [submitting, setSubmitting] = useState(false)
   const [editingStruct, setEditingStruct] = useState(null)
+  const [deleteConfirmId, setDeleteConfirmId] = useState(null)
+  const [deleting, setDeleting] = useState(false)
   
   const handleOpenEdit = (struct) => {
     setEditingStruct(struct)
@@ -162,13 +164,16 @@ function StructuresTab({ structures, onRefresh, loading }) {
   }
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to remove this Fee Structure?')) return
+    setDeleting(true)
     try {
       await api.delete(`/fees/structures/${id}`)
       toast.success('Fee structure removed')
       onRefresh()
     } catch (err) {
       toast.error('Failed to remove fee structure')
+    } finally {
+      setDeleting(false)
+      setDeleteConfirmId(null)
     }
   }
 
@@ -274,7 +279,7 @@ function StructuresTab({ structures, onRefresh, loading }) {
                         <DropdownMenuItem className="cursor-pointer" onClick={() => handleOpenEdit(s)}>
                           <Pencil className="mr-2 h-4 w-4" /> Edit
                         </DropdownMenuItem>
-                        <DropdownMenuItem className="cursor-pointer text-destructive focus:bg-destructive/10" onClick={() => handleDelete(s._id)}>
+                        <DropdownMenuItem className="cursor-pointer text-destructive focus:bg-destructive/10" onClick={() => setDeleteConfirmId(s._id)}>
                           <Trash2 className="mr-2 h-4 w-4" /> Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
@@ -288,6 +293,27 @@ function StructuresTab({ structures, onRefresh, loading }) {
             </TableBody>
           </Table>
         )}
+
+      <Dialog open={!!deleteConfirmId} onOpenChange={(val) => !val && setDeleteConfirmId(null)}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2 text-destructive">
+              <AlertTriangle className="h-5 w-5" />
+              Confirm Deletion
+            </DialogTitle>
+          </DialogHeader>
+          <div className="py-4 text-sm text-muted-foreground">
+            Are you sure you want to remove this fee structure? This action cannot be undone.
+          </div>
+          <div className="flex items-center justify-end gap-3 pt-4 border-t">
+            <Button variant="outline" onClick={() => setDeleteConfirmId(null)}>Cancel</Button>
+            <Button variant="destructive" onClick={() => handleDelete(deleteConfirmId)} disabled={deleting}>
+              {deleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+              Delete
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
       </CardContent>
     </Card>
   )

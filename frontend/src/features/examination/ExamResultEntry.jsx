@@ -54,17 +54,17 @@ export default function ExamResultEntry() {
     setLoading(true)
     try {
       const res = await api.get('/exams/students', {
-        params: { class: selectedClass, section: selectedSection }
+        params: { class: selectedClass, section: selectedSection, examType, subject }
       })
       const students = res.data.data || []
       const data = students.map(s => ({
         studentId: s._id,
         studentName: s.name,
         rollNumber: s.rollNo,
-        marksObtained: '',
+        marksObtained: s.marksObtained !== undefined ? s.marksObtained : '',
         maxMarks,
-        percentage: 0,
-        grade: '',
+        percentage: s.percentage || 0,
+        grade: s.grade || '',
         error: '',
       }))
       setEntries(data)
