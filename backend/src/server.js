@@ -24,6 +24,8 @@ const dashboardRoutes = require('./routes/dashboard.routes');
 const auditLogRoutes = require('./routes/auditLog.routes');
 const feeRoutes = require('./routes/fee.routes');
 const notificationRoutes = require('./routes/notification.routes');
+const classRoutes = require('./routes/class.routes');
+const analyticsRoutes = require('./routes/analytics.routes');
 
 // Mount routes
 app.use('/api/auth', authRoutes);
@@ -36,6 +38,8 @@ app.use('/api/dashboard', dashboardRoutes);
 app.use('/api/audit-logs', auditLogRoutes);
 app.use('/api/fees', feeRoutes);
 app.use('/api/notifications', notificationRoutes);
+app.use('/api/classes', classRoutes);
+app.use('/api/analytics', analyticsRoutes);
 
 app.get('/', (req, res) => {
   res.send('SaaS API is running');

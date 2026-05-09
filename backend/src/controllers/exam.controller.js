@@ -20,6 +20,24 @@ exports.getResults = async (req, res) => {
   }
 };
 
+// Get exam results for the logged-in student
+exports.getMyResults = async (req, res) => {
+  try {
+    // Find the student record associated with this user
+    const student = await Student.findOne({ user: req.user.id, school: req.schoolId });
+    if (!student) {
+      return res.status(404).json({ success: false, message: "Student record not found" });
+    }
+
+    const results = await ExamResult.find({ school: req.schoolId, student: student._id })
+      .sort({ createdAt: -1 });
+
+    res.json({ success: true, count: results.length, data: results });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // Bulk save/update exam results
 exports.saveResults = async (req, res) => {
   try {

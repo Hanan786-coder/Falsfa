@@ -14,7 +14,11 @@ const { getSchools,
   createSchool,
   getSchoolById,
   updateSchool,
-  deleteSchoolById
+  deleteSchoolById,
+  getMySchoolSettings,
+  updateMySchoolSettings,
+  getSubscriptions,
+  updateSubscription
  } = require("../controllers/school.controller");
 
 // All routes require authentication
@@ -25,6 +29,14 @@ router.get("/", authorize("superadmin"), getSchools);
 
 // ── POST create a new school ──────────────────────────────────
 router.post("/", authorize("superadmin"), createSchool);
+
+// ── GET/PUT my school settings ────────────────────────────────
+router.get("/settings/my", authorize("schooladmin"), getMySchoolSettings);
+router.put("/settings/my", authorize("schooladmin"), updateMySchoolSettings);
+
+// ── GET/PUT subscriptions (superadmin only) ───────────────────
+router.get("/subscriptions", authorize("superadmin"), getSubscriptions);
+router.put("/subscriptions/:id", authorize("superadmin"), updateSubscription);
 
 // ── GET single school ─────────────────────────────────────────
 router.get("/:id", getSchoolById);

@@ -280,3 +280,22 @@ exports.getStudentFees = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+// ── GET /api/fees/my-status ──────────────────────────────────
+exports.getMyFeeStatus = async (req, res) => {
+  try {
+    const student = await Student.findOne({ user: req.user.id, school: req.schoolId });
+    if (!student) {
+      return res.status(404).json({ success: false, message: "Student record not found" });
+    }
+
+    const fees = await Fee.find({
+      school: req.schoolId,
+      student: student._id,
+    }).sort({ createdAt: -1 });
+
+    res.json({ success: true, count: fees.length, data: fees });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
