@@ -14,8 +14,9 @@ exports.getMyClasses = async (req, res) => {
       return res.status(404).json({ success: false, message: "Staff record not found" });
     }
 
-    // Return the classes assigned to this teacher
-    res.json({ success: true, count: staff.classes.length, data: staff.classes });
+    // Derive unique classes from assignments
+    const classes = [...new Set((staff.assignments || []).map(a => a.class))];
+    res.json({ success: true, count: classes.length, data: classes, assignments: staff.assignments || [] });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
   }
@@ -24,13 +25,20 @@ exports.getMyClasses = async (req, res) => {
 // ── GET /api/classes/:classId/students ───────────────────────
 exports.getClassStudents = async (req, res) => {
   try {
-    const className = req.params.classId; // the parameter is actually the class name string like "10-A"
+    const className = req.params.classId;
+    const { section } = req.query;
     
-    const students = await Student.find({
+    const query = {
       school: req.schoolId,
       class: className,
       isActive: true,
-    }).select("name rollNo section photo");
+    };
+
+    if (section) {
+      query.section = section;
+    }
+
+    const students = await Student.find(query).select("name rollNo section photo");
 
     res.json({ success: true, count: students.length, data: students });
   } catch (error) {

@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
+import { useTenant } from '@/context/TenantContext'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
@@ -17,8 +18,12 @@ import {
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import {
-  Search, Plus, MoreHorizontal, Pencil, Trash2, GraduationCap, ArrowUpDown, ChevronLeft, ChevronRight, Loader2, AlertTriangle
+  Search, Plus, MoreHorizontal, Pencil, Trash2, GraduationCap, ArrowUpDown, ChevronLeft, ChevronRight, Loader2, AlertTriangle, X
 } from 'lucide-react'
+
+const DEFAULT_CLASSES = ['Class 1','Class 2','Class 3','Class 4','Class 5','Class 6','Class 7','Class 8','Class 9','Class 10']
+const DEFAULT_SECTIONS = ['A', 'B', 'C']
+const DEFAULT_SUBJECTS = ['Mathematics', 'English', 'Science', 'Urdu', 'Islamiat', 'Computer', 'History', 'Geography']
 import { toast } from 'sonner'
 
 export default function TeacherList() {
@@ -108,6 +113,24 @@ export default function TeacherList() {
       accessorKey: 'phone',
       header: 'Contact',
       cell: ({ row }) => <span className="text-sm text-muted-foreground">{row.original.phone || '-'}</span>,
+    },
+    {
+      accessorKey: 'assignments',
+      header: 'Assignments',
+      cell: ({ row }) => {
+        const assignments = row.original.assignments || []
+        if (assignments.length === 0) return <span className="text-xs text-muted-foreground">None</span>
+        return (
+          <div className="flex flex-col gap-1 max-w-[200px]">
+            {assignments.map((a, i) => (
+              <div key={i} className="text-xs border rounded p-1">
+                <span className="font-semibold">{a.class}{a.section ? ` (${a.section})` : ''}:</span>{' '}
+                <span className="text-muted-foreground">{a.subjects.join(', ')}</span>
+              </div>
+            ))}
+          </div>
+        )
+      },
     },
     {
       id: 'actions',
@@ -267,12 +290,65 @@ export default function TeacherList() {
 function TeacherFormDialog({ open, onClose, initialData, onSuccess }) {
   const [submitting, setSubmitting] = useState(false)
   const isEditing = !!initialData
+  const { schoolConfig } = useTenant()
+
+  const combinedClasses = [...new Set([...DEFAULT_CLASSES, ...(schoolConfig?.customClasses || [])])]
+  const combinedSections = [...new Set([...DEFAULT_SECTIONS, ...(schoolConfig?.customSections || [])])]
+  const combinedSubjects = [...new Set([...DEFAULT_SUBJECTS, ...(schoolConfig?.customSubjects || [])])]
+
+  const [assignments, setAssignments] = useState([])
+
+  useEffect(() => {
+    if (open) {
+      if (initialData && initialData.assignments) {
+        setAssignments(initialData.assignments)
+      } else {
+        setAssignments([])
+      }
+    }
+  }, [open, initialData])
+
+  const handleAddAssignment = () => {
+    setAssignments([...assignments, { class: '', section: '', subjects: [] }])
+  }
+
+  const handleRemoveAssignment = (index) => {
+    setAssignments(assignments.filter((_, i) => i !== index))
+  }
+
+  const handleAssignmentClassChange = (index, val) => {
+    const newAssignments = [...assignments]
+    newAssignments[index].class = val
+    setAssignments(newAssignments)
+  }
+
+  const handleAssignmentSectionChange = (index, val) => {
+    const newAssignments = [...assignments]
+    newAssignments[index].section = val
+    setAssignments(newAssignments)
+  }
+
+  const handleAddSubjectToAssignment = (index, subject) => {
+    const newAssignments = [...assignments]
+    if (subject && !newAssignments[index].subjects.includes(subject)) {
+      newAssignments[index].subjects.push(subject)
+    }
+    setAssignments(newAssignments)
+  }
+
+  const handleRemoveSubjectFromAssignment = (index, subject) => {
+    const newAssignments = [...assignments]
+    newAssignments[index].subjects = newAssignments[index].subjects.filter(s => s !== subject)
+    setAssignments(newAssignments)
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSubmitting(true)
     const formData = new FormData(e.target)
     const payload = Object.fromEntries(formData)
+    
+    payload.assignments = assignments.filter(a => a.class && a.section && a.subjects.length > 0)
 
     try {
       if (isEditing) {
@@ -350,6 +426,76 @@ function TeacherFormDialog({ open, onClose, initialData, onSuccess }) {
               <Label>Join Date</Label>
               <Input type="date" name="joinDate" defaultValue={initialData?.joinDate?.split('T')[0]} />
             </div>
+          </div>
+
+          <div className="space-y-3 pt-4 border-t">
+            <div className="flex items-center justify-between">
+              <Label className="text-base">Class & Subject Assignments</Label>
+              <Button type="button" variant="outline" size="sm" onClick={handleAddAssignment}>
+                <Plus className="mr-1 h-3 w-3" /> Add Assignment
+              </Button>
+            </div>
+            {assignments.length === 0 && (
+              <div className="text-sm text-muted-foreground text-center py-4 bg-muted/30 rounded-md border border-dashed">
+                No classes or subjects assigned yet.
+              </div>
+            )}
+            {assignments.map((assignment, index) => (
+              <div key={index} className="p-3 border rounded-md space-y-3 bg-muted/10 relative group">
+                <Button 
+                  type="button" 
+                  variant="ghost" 
+                  size="icon" 
+                  className="absolute top-1 right-1 h-6 w-6 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => handleRemoveAssignment(index)}
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+                
+                <div className="grid grid-cols-3 gap-3 pr-6">
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Class</Label>
+                    <Select value={assignment.class} onValueChange={(val) => handleAssignmentClassChange(index, val)}>
+                      <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Select class" /></SelectTrigger>
+                      <SelectContent>
+                        {combinedClasses.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Section</Label>
+                    <Select value={assignment.section || ''} onValueChange={(val) => handleAssignmentSectionChange(index, val)}>
+                      <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Section" /></SelectTrigger>
+                      <SelectContent>
+                        {combinedSections.map(s => <SelectItem key={s} value={s}>Section {s}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label className="text-xs">Add Subject</Label>
+                    <Select value="" onValueChange={(val) => handleAddSubjectToAssignment(index, val)}>
+                      <SelectTrigger className="h-8 text-sm"><SelectValue placeholder="Select to add" /></SelectTrigger>
+                      <SelectContent>
+                        {combinedSubjects.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                {assignment.subjects.length > 0 && (
+                  <div className="flex flex-wrap gap-1.5 pt-1">
+                    {assignment.subjects.map(sub => (
+                      <Badge key={sub} variant="secondary" className="text-[10px] py-0 font-normal">
+                        {sub}
+                        <button type="button" onClick={() => handleRemoveSubjectFromAssignment(index, sub)} className="ml-1 hover:text-destructive">
+                          <X className="h-2.5 w-2.5" />
+                        </button>
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
 
           <Button type="submit" disabled={submitting} className="w-full mt-4">

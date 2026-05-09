@@ -1,17 +1,20 @@
 import { useState, useEffect } from 'react'
 import api from '@/lib/api'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Building, Phone, Mail, Globe, MapPin, Calendar, Loader2, Save} from 'lucide-react'
+import { Building, Phone, Mail, Globe, MapPin, Calendar, Loader2, Save, BookOpen, Plus, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTenant } from '@/context/TenantContext'
+import { useAuth } from '@/context/AuthContext'
 
 export default function SchoolSettingsPage() {
   const [loading, setLoading] = useState(true)
   const [submitting, setSubmitting] = useState(false)
-  const { schoolConfig, refreshTenantData } = useTenant()
+  const { schoolConfig } = useTenant()
+  const { updateUserData } = useAuth()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -20,8 +23,13 @@ export default function SchoolSettingsPage() {
     currentSession: '',
     address: { street: '', city: '', state: '', zip: '', country: 'Pakistan' },
     customClasses: [],
-    customSections: []
+    customSections: [],
+    customSubjects: []
   })
+  
+  const [newClassInput, setNewClassInput] = useState('')
+  const [newSectionInput, setNewSectionInput] = useState('')
+  const [newSubjectInput, setNewSubjectInput] = useState('')
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -37,7 +45,8 @@ export default function SchoolSettingsPage() {
             currentSession: s.currentSession || '',
             address: s.address || { street: '', city: '', state: '', zip: '', country: 'Pakistan' },
             customClasses: s.customClasses || [],
-            customSections: s.customSections || []
+            customSections: s.customSections || [],
+            customSubjects: s.customSubjects || []
           })
         }
       } catch (err) {
@@ -59,14 +68,49 @@ export default function SchoolSettingsPage() {
     }
   }
 
+  const handleAddCustomClass = () => {
+    if (newClassInput.trim() && !formData.customClasses.includes(newClassInput.trim())) {
+      setFormData(prev => ({ ...prev, customClasses: [...prev.customClasses, newClassInput.trim()] }))
+      setNewClassInput('')
+    }
+  }
+
+  const handleRemoveCustomClass = (cls) => {
+    setFormData(prev => ({ ...prev, customClasses: prev.customClasses.filter(c => c !== cls) }))
+  }
+
+  const handleAddCustomSection = () => {
+    if (newSectionInput.trim() && !formData.customSections.includes(newSectionInput.trim())) {
+      setFormData(prev => ({ ...prev, customSections: [...prev.customSections, newSectionInput.trim()] }))
+      setNewSectionInput('')
+    }
+  }
+
+  const handleRemoveCustomSection = (sec) => {
+    setFormData(prev => ({ ...prev, customSections: prev.customSections.filter(s => s !== sec) }))
+  }
+
+  const handleAddCustomSubject = () => {
+    if (newSubjectInput.trim() && !formData.customSubjects.includes(newSubjectInput.trim())) {
+      setFormData(prev => ({ ...prev, customSubjects: [...prev.customSubjects, newSubjectInput.trim()] }))
+      setNewSubjectInput('')
+    }
+  }
+
+  const handleRemoveCustomSubject = (sub) => {
+    setFormData(prev => ({ ...prev, customSubjects: prev.customSubjects.filter(s => s !== sub) }))
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
     setSubmitting(true)
     try {
       await api.put('/schools/settings/my', formData)
       toast.success('School settings updated successfully')
-      if (typeof refreshTenantData === 'function') {
-        refreshTenantData() // update context if it exists
+      
+      const userRes = await api.get('/auth/me')
+      if (userRes.data.success) {
+        updateUserData(userRes.data.data)
       }
     } catch (err) {
       console.error(err)
@@ -172,6 +216,95 @@ export default function SchoolSettingsPage() {
                 <div className="space-y-2">
                   <Label>ZIP/Postal Code</Label>
                   <Input name="address.zip" value={formData.address.zip} onChange={handleChange} />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Custom Classes & Sections */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center gap-2">
+                <BookOpen className="h-4 w-4 text-purple-500" /> Custom Classes & Sections
+              </CardTitle>
+              <CardDescription>Add classes or sections specific to your school that are not in the default lists.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="space-y-3">
+                <Label>Custom Classes</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    value={newClassInput} 
+                    onChange={e => setNewClassInput(e.target.value)} 
+                    placeholder="e.g. Pre-Nursery" 
+                    onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddCustomClass())}
+                  />
+                  <Button type="button" variant="secondary" onClick={handleAddCustomClass}>
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {formData.customClasses.map(cls => (
+                    <Badge key={cls} variant="outline" className="text-sm py-1">
+                      {cls}
+                      <button type="button" onClick={() => handleRemoveCustomClass(cls)} className="ml-2 hover:bg-muted rounded-full">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                  {formData.customClasses.length === 0 && <span className="text-sm text-muted-foreground">No custom classes added.</span>}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label>Custom Sections</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    value={newSectionInput} 
+                    onChange={e => setNewSectionInput(e.target.value)} 
+                    placeholder="e.g. Blue, Red" 
+                    onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddCustomSection())}
+                  />
+                  <Button type="button" variant="secondary" onClick={handleAddCustomSection}>
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {formData.customSections.map(sec => (
+                    <Badge key={sec} variant="outline" className="text-sm py-1">
+                      {sec}
+                      <button type="button" onClick={() => handleRemoveCustomSection(sec)} className="ml-2 hover:bg-muted rounded-full">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                  {formData.customSections.length === 0 && <span className="text-sm text-muted-foreground">No custom sections added.</span>}
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <Label>Custom Subjects</Label>
+                <div className="flex gap-2">
+                  <Input 
+                    value={newSubjectInput} 
+                    onChange={e => setNewSubjectInput(e.target.value)} 
+                    placeholder="e.g. Robotics, AI" 
+                    onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddCustomSubject())}
+                  />
+                  <Button type="button" variant="secondary" onClick={handleAddCustomSubject}>
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {formData.customSubjects.map(sub => (
+                    <Badge key={sub} variant="outline" className="text-sm py-1">
+                      {sub}
+                      <button type="button" onClick={() => handleRemoveCustomSubject(sub)} className="ml-2 hover:bg-muted rounded-full">
+                        <X className="h-3 w-3" />
+                      </button>
+                    </Badge>
+                  ))}
+                  {formData.customSubjects.length === 0 && <span className="text-sm text-muted-foreground">No custom subjects added.</span>}
                 </div>
               </div>
             </CardContent>

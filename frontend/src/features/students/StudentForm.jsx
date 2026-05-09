@@ -10,8 +10,12 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Loader2, UserPlus, Pencil } from 'lucide-react'
 import { useEffect } from 'react'
 import { toast } from 'sonner'
+import { useTenant } from '@/context/TenantContext'
 
 export default function StudentForm({ open, onClose, onSuccess, initialData }) {
+  const { schoolConfig } = useTenant()
+  const combinedClasses = [...new Set([...CLASSES, ...(schoolConfig?.customClasses || [])])]
+  const combinedSections = [...new Set([...SECTIONS, ...(schoolConfig?.customSections || [])])]
   const { mutate: createStudent, isLoading: isCreating } = useCreateStudent()
   const { mutate: updateStudent, isLoading: isUpdating } = useUpdateStudent()
   const isLoading = isCreating || isUpdating
@@ -83,7 +87,7 @@ export default function StudentForm({ open, onClose, onSuccess, initialData }) {
               <Select onValueChange={(v) => setValue('class', v)}>
                 <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
                 <SelectContent>
-                  {CLASSES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  {combinedClasses.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
                 </SelectContent>
               </Select>
               {errors.class && <p className="text-xs text-destructive">{errors.class.message}</p>}
@@ -96,7 +100,7 @@ export default function StudentForm({ open, onClose, onSuccess, initialData }) {
               <Select onValueChange={(v) => setValue('section', v)}>
                 <SelectTrigger><SelectValue placeholder="Section" /></SelectTrigger>
                 <SelectContent>
-                  {SECTIONS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                  {combinedSections.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>

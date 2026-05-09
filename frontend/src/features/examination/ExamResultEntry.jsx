@@ -7,6 +7,8 @@ import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ClipboardList, Save, AlertCircle, CheckCircle2, Loader2 } from 'lucide-react'
+import { useTenant } from '@/context/TenantContext'
+import { useAuth } from '@/context/AuthContext'
 
 const CLASSES = ['Class 1','Class 2','Class 3','Class 4','Class 5','Class 6','Class 7','Class 8','Class 9','Class 10']
 const SECTIONS = ['A', 'B', 'C']
@@ -48,6 +50,38 @@ export default function ExamResultEntry() {
   const [saved, setSaved] = useState(false)
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
+  const { schoolConfig } = useTenant()
+  const { user } = useAuth()
+  const isTeacher = user?.role === 'teacher'
+
+  const [teacherAssignments, setTeacherAssignments] = useState([])
+
+  useEffect(() => {
+    if (isTeacher) {
+      api.get('/classes/my-classes').then(res => {
+        if (res.data.success) {
+          setTeacherAssignments(res.data.assignments || [])
+        }
+      }).catch(() => {})
+    }
+  }, [isTeacher])
+
+  const combinedClasses = [...new Set([...CLASSES, ...(schoolConfig?.customClasses || [])])]
+  const combinedSections = [...new Set([...SECTIONS, ...(schoolConfig?.customSections || [])])]
+  const combinedSubjects = [...new Set([...SUBJECTS, ...(schoolConfig?.customSubjects || [])])]
+
+  // For teachers: only show their assigned classes and subjects
+  const availableClasses = isTeacher
+    ? [...new Set(teacherAssignments.map(a => a.class))]
+    : combinedClasses
+
+  const availableSubjects = isTeacher
+    ? [...new Set(
+        teacherAssignments
+          .filter(a => !selectedClass || a.class === selectedClass)
+          .flatMap(a => a.subjects)
+      )]
+    : combinedSubjects
 
   const loadGrid = async () => {
     if (!selectedClass || !selectedSection || !examType || !subject) return
@@ -158,13 +192,13 @@ export default function ExamResultEntry() {
       <Card>
         <CardContent className="p-4">
           <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-            <Select value={selectedClass} onValueChange={setSelectedClass}>
+            <Select value={selectedClass} onValueChange={(val) => { setSelectedClass(val); setSubject('') }}>
               <SelectTrigger><SelectValue placeholder="Class" /></SelectTrigger>
-              <SelectContent>{CLASSES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+              <SelectContent>{availableClasses.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
             </Select>
             <Select value={selectedSection} onValueChange={setSelectedSection}>
               <SelectTrigger><SelectValue placeholder="Section" /></SelectTrigger>
-              <SelectContent>{SECTIONS.map(s => <SelectItem key={s} value={s}>Section {s}</SelectItem>)}</SelectContent>
+              <SelectContent>{combinedSections.map(s => <SelectItem key={s} value={s}>Section {s}</SelectItem>)}</SelectContent>
             </Select>
             <Select value={examType} onValueChange={setExamType}>
               <SelectTrigger><SelectValue placeholder="Exam Type" /></SelectTrigger>
@@ -177,7 +211,7 @@ export default function ExamResultEntry() {
             <Select value={subject} onValueChange={setSubject}>
               <SelectTrigger><SelectValue placeholder="Subject" /></SelectTrigger>
               <SelectContent>
-                {SUBJECTS.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                {availableSubjects.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
               </SelectContent>
             </Select>
             <Button onClick={loadGrid} disabled={!selectedClass || !selectedSection || !examType || !subject || loading}>

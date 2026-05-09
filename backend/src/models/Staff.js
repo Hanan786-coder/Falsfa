@@ -39,11 +39,14 @@ const staffSchema = new mongoose.Schema(
             default: "teacher",
         },
 
-        // Subjects taught (for teachers)
-        subjects: [{ type: String }],
-
-        // Classes assigned (for teachers)
-        classes: [{ type: String }],
+        // Assignments for teachers
+        assignments: [
+            {
+                class: { type: String, required: true },
+                section: { type: String, required: true },
+                subjects: [{ type: String, required: true }]
+            }
+        ],
 
         // Employment Details
         joinDate: { type: Date, default: Date.now },

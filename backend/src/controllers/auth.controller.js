@@ -42,7 +42,7 @@ exports.login = async (req, res) => {
     }
 
     // Find user and explicitly select password (hidden by default)
-    const user = await User.findOne({ email }).select("+password").populate("school", "name code logo customClasses customSections");
+    const user = await User.findOne({ email }).select("+password").populate("school", "name code logo customClasses customSections customSubjects");
 
     if (!user) {
       return res.status(401).json({ success: false, message: "Invalid credentials" });
@@ -81,7 +81,7 @@ exports.login = async (req, res) => {
 // ── Get Current User ──────────────────────────────────────────
 exports.getMe = async (req, res) => {
   try {
-    const user = await User.findById(req.user.id).populate("school", "name code logo plan customClasses customSections");
+    const user = await User.findById(req.user.id).populate("school", "name code logo plan customClasses customSections customSubjects");
     res.json({ success: true, data: user });
   } catch (error) {
     res.status(500).json({ success: false, message: error.message });
@@ -121,7 +121,7 @@ exports.updateProfile = async (req, res) => {
       req.user.id,
       allowedUpdates,
       { new: true, runValidators: true }
-    ).populate("school", "name code logo plan customClasses customSections");
+    ).populate("school", "name code logo plan customClasses customSections customSubjects");
 
     res.json({ success: true, data: user });
   } catch (error) {

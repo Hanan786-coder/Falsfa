@@ -19,9 +19,10 @@ export function TenantProvider({ children }) {
         primaryColor: '221.2 83.2% 53.3%',
         customClasses: user.school.customClasses || [],
         customSections: user.school.customSections || [],
+        customSubjects: user.school.customSubjects || [],
       }
     }
-    return { name: 'Falsfa Platform', primaryColor: '221.2 83.2% 53.3%', customClasses: [], customSections: [] }
+    return { name: 'Falsfa Platform', primaryColor: '221.2 83.2% 53.3%', customClasses: [], customSections: [], customSubjects: [] }
   }, [user])
 
   // Apply tenant brand color

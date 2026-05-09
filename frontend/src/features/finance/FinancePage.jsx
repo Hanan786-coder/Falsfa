@@ -17,6 +17,7 @@ import { DollarSign, CheckCircle2, AlertCircle, Clock, Loader2, Plus, DownloadCl
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import { CLASSES } from '../students/studentSchema'
+import { useTenant } from '@/context/TenantContext'
 
 export default function FinancePage() {
   const [summary, setSummary] = useState(null)
@@ -131,6 +132,8 @@ function StructuresTab({ structures, onRefresh, loading }) {
   const [editingStruct, setEditingStruct] = useState(null)
   const [deleteConfirmId, setDeleteConfirmId] = useState(null)
   const [deleting, setDeleting] = useState(false)
+  const { schoolConfig } = useTenant()
+  const combinedClasses = [...new Set([...CLASSES, ...(schoolConfig?.customClasses || [])])]
   
   const handleOpenEdit = (struct) => {
     setEditingStruct(struct)
@@ -204,7 +207,7 @@ function StructuresTab({ structures, onRefresh, loading }) {
                       <SelectValue placeholder="Select Class" />
                     </SelectTrigger>
                     <SelectContent>
-                      {CLASSES.map((c) => (
+                      {combinedClasses.map((c) => (
                         <SelectItem key={c} value={c}>
                           {c}
                         </SelectItem>
@@ -328,6 +331,8 @@ function VouchersTab({ vouchers, onRefresh, loading }) {
   const [openPay, setOpenPay] = useState(false)
   const [selectedVoucher, setSelectedVoucher] = useState(null)
   const [submitting, setSubmitting] = useState(false)
+  const { schoolConfig } = useTenant()
+  const combinedClasses = [...new Set([...CLASSES, ...(schoolConfig?.customClasses || [])])]
 
   const filtered = vouchers.filter(v => 
     v.studentName.toLowerCase().includes(search.toLowerCase()) || 
@@ -402,7 +407,7 @@ function VouchersTab({ vouchers, onRefresh, loading }) {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Classes</SelectItem>
-                    {CLASSES.map((c) => (
+                    {combinedClasses.map((c) => (
                       <SelectItem key={c} value={c}>
                         {c}
                       </SelectItem>

@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Input } from '@/components/ui/input'
 import { CalendarDays, Save, CheckCircle2, Loader2 } from 'lucide-react'
+import { useTenant } from '@/context/TenantContext'
 
 const CLASSES = ['Class 1','Class 2','Class 3','Class 4','Class 5','Class 6','Class 7','Class 8','Class 9','Class 10']
 const SECTIONS = ['A', 'B', 'C']
@@ -22,6 +23,10 @@ export default function AttendanceEntry() {
   const [loading, setLoading] = useState(false)
   const [saving, setSaving] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
+  const { schoolConfig } = useTenant()
+
+  const combinedClasses = [...new Set([...CLASSES, ...(schoolConfig?.customClasses || [])])]
+  const combinedSections = [...new Set([...SECTIONS, ...(schoolConfig?.customSections || [])])]
 
   const loadStudents = async () => {
     if (!selectedClass || !selectedSection || !date) return
@@ -111,11 +116,11 @@ export default function AttendanceEntry() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             <Select value={selectedClass} onValueChange={setSelectedClass}>
               <SelectTrigger><SelectValue placeholder="Class" /></SelectTrigger>
-              <SelectContent>{CLASSES.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
+              <SelectContent>{combinedClasses.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
             </Select>
             <Select value={selectedSection} onValueChange={setSelectedSection}>
               <SelectTrigger><SelectValue placeholder="Section" /></SelectTrigger>
-              <SelectContent>{SECTIONS.map(s => <SelectItem key={s} value={s}>Section {s}</SelectItem>)}</SelectContent>
+              <SelectContent>{combinedSections.map(s => <SelectItem key={s} value={s}>Section {s}</SelectItem>)}</SelectContent>
             </Select>
             <Input type="date" value={date} onChange={(e) => setDate(e.target.value)} />
             <Button onClick={loadStudents} disabled={!selectedClass || !selectedSection || !date || loading}>
