@@ -13,10 +13,10 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Badge } from '@/components/ui/badge'
-import { DollarSign, CheckCircle2, AlertCircle, Clock, Loader2, Plus, DownloadCloud, Search, Pencil, MoreHorizontal, Trash2, AlertTriangle } from 'lucide-react'
+import { DollarSign, CheckCircle2, AlertCircle, Clock, Loader2, Plus, DownloadCloud, Search, Pencil, MoreHorizontal, Trash2, AlertTriangle, Printer } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { toast } from 'sonner'
-import { CLASSES } from '../students/studentSchema'
+import { CLASSES, SECTIONS } from '../students/studentSchema'
 import { useTenant } from '@/context/TenantContext'
 
 export default function FinancePage() {
@@ -147,6 +147,7 @@ function StructuresTab({ structures, onRefresh, loading }) {
     const payload = Object.fromEntries(formData)
     // Convert to numbers
     ;['tuitionFee', 'examFee', 'libraryFee', 'miscFee'].forEach(k => payload[k] = Number(payload[k]))
+    if (payload.section === "all") payload.section = ""
     
     try {
       if (editingStruct) {
@@ -202,7 +203,7 @@ function StructuresTab({ structures, onRefresh, loading }) {
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label>Class</Label>
-                  <Select name="class" defaultValue={editingStruct?.class} required disabled={!!editingStruct}>
+                  <Select name="class" defaultValue={editingStruct?.class} disabled={!!editingStruct}>
                     <SelectTrigger>
                       <SelectValue placeholder="Select Class" />
                     </SelectTrigger>
@@ -218,6 +219,22 @@ function StructuresTab({ structures, onRefresh, loading }) {
                 <div className="space-y-2">
                   <Label>Academic Year</Label>
                   <Input name="academicYear" defaultValue={editingStruct?.academicYear || "2024-2025"} required />
+                </div>
+                <div className="space-y-2">
+                  <Label>Section (Optional)</Label>
+                  <Select name="section" defaultValue={editingStruct?.section || "all"}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All Sections" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Sections</SelectItem>
+                      {SECTIONS.map((s) => (
+                        <SelectItem key={s} value={s}>
+                          Section {s}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -253,6 +270,7 @@ function StructuresTab({ structures, onRefresh, loading }) {
             <TableHeader>
               <TableRow>
                 <TableHead>Class</TableHead>
+                <TableHead>Section</TableHead>
                 <TableHead>Tuition</TableHead>
                 <TableHead>Exam</TableHead>
                 <TableHead>Library</TableHead>
@@ -265,6 +283,7 @@ function StructuresTab({ structures, onRefresh, loading }) {
               {structures.map(s => (
                 <TableRow key={s._id}>
                   <TableCell className="font-medium">{s.class}</TableCell>
+                  <TableCell>{s.section || 'All'}</TableCell>
                   <TableCell>{formatCurrency(s.tuitionFee)}</TableCell>
                   <TableCell>{formatCurrency(s.examFee)}</TableCell>
                   <TableCell>{formatCurrency(s.libraryFee)}</TableCell>
@@ -382,7 +401,8 @@ function VouchersTab({ vouchers, onRefresh, loading }) {
       paid: { color: 'bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20' },
       overdue: { color: 'bg-red-500/10 text-red-500 hover:bg-red-500/20' }
     }
-    return <Badge className={`uppercase text-[10px] ${map[status].color} border-0`}>{status}</Badge>
+    const badgeStyle = map[status] || { color: 'bg-gray-500/10 text-gray-500 hover:bg-gray-500/20' }
+    return <Badge className={`uppercase text-[10px] ${badgeStyle.color} border-0`}>{status}</Badge>
   }
 
   return (
@@ -401,7 +421,7 @@ function VouchersTab({ vouchers, onRefresh, loading }) {
             <form onSubmit={handleGenerate} className="space-y-4">
               <div className="space-y-2">
                 <Label>Class</Label>
-                <Select name="class" required>
+                <Select name="class">
                   <SelectTrigger>
                     <SelectValue placeholder="Select Class (or All)" />
                   </SelectTrigger>
@@ -410,6 +430,22 @@ function VouchersTab({ vouchers, onRefresh, loading }) {
                     {combinedClasses.map((c) => (
                       <SelectItem key={c} value={c}>
                         {c}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label>Section</Label>
+                <Select name="section" defaultValue="all">
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select Section (or All)" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Sections</SelectItem>
+                    {SECTIONS.map((s) => (
+                      <SelectItem key={s} value={s}>
+                        Section {s}
                       </SelectItem>
                     ))}
                   </SelectContent>
@@ -436,7 +472,7 @@ function VouchersTab({ vouchers, onRefresh, loading }) {
             <TableHeader>
               <TableRow>
                 <TableHead>Student</TableHead>
-                <TableHead>Class</TableHead>
+                <TableHead>Class/Sec</TableHead>
                 <TableHead>Month</TableHead>
                 <TableHead>Net Amount</TableHead>
                 <TableHead>Status</TableHead>
@@ -447,13 +483,16 @@ function VouchersTab({ vouchers, onRefresh, loading }) {
               {filtered.map(v => (
                 <TableRow key={v._id}>
                   <TableCell className="font-medium">{v.studentName}</TableCell>
-                  <TableCell>{v.class}</TableCell>
+                  <TableCell>{v.class} {v.section ? `- ${v.section}` : ''}</TableCell>
                   <TableCell>{v.month}</TableCell>
                   <TableCell>{formatCurrency(v.netAmount)}</TableCell>
                   <TableCell>{getStatusBadge(v.status)}</TableCell>
-                  <TableCell className="text-right">
+                  <TableCell className="text-right flex items-center justify-end gap-2">
+                    <Button size="sm" variant="outline" className="h-8 gap-1" onClick={() => window.open(`/finance/voucher/${v._id}`, '_blank')}>
+                      <Printer className="h-3 w-3" /> Print
+                    </Button>
                     {v.status !== 'paid' && (
-                      <Button size="sm" variant="outline" onClick={() => { setSelectedVoucher(v); setOpenPay(true) }}>
+                      <Button size="sm" variant="outline" className="h-8" onClick={() => { setSelectedVoucher(v); setOpenPay(true) }}>
                         Receive Payment
                       </Button>
                     )}
