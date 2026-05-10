@@ -28,6 +28,10 @@ const STUDENTS_DATA = [
 async function seed() {
   await connectDB();
 
+  const now = new Date();
+  const currentYear = now.getFullYear();
+  const currentMonth = now.getMonth();
+
   // Clear existing data
   await Promise.all([
     User.deleteMany({}),
@@ -94,15 +98,7 @@ async function seed() {
     school: school1._id,
   });
 
-  const studentUser = await User.create({
-    name: "Ali Hassan",
-    email: "ali@greenvalley.edu",
-    password: "admin123",
-    role: "student",
-    school: school1._id,
-  });
-
-  console.log("👤 Created users: superadmin, schooladmin, teacher, student");
+  console.log("👤 Created users: superadmin, schooladmin, teacher");
 
   // Create Staff
   const teacherStaff = await Staff.create({
@@ -129,7 +125,7 @@ async function seed() {
     const sec = sections[i % 3];
     studentDocs.push({
       school: school1._id,
-      user: i === 0 ? studentUser._id : null, // Link first student to user
+      user: null, // Link first student to user
       name: name,
       rollNo: `RN-2024-${String(i + 1).padStart(3, "0")}`,
       gender: i % 2 === 0 ? "male" : "female",
@@ -156,13 +152,25 @@ async function seed() {
 
   // Create Fees (Vouchers)
   const feeDocs = [];
-  const months = ["January 2025", "February 2025", "March 2025", "April 2025", "May 2025"];
+  const monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  const months = [];
+  // Generate for the last 5 months up to current month
+  for (let i = 4; i >= 0; i--) {
+    let m = currentMonth - i;
+    let y = currentYear;
+    if (m < 0) {
+      m += 12;
+      y -= 1;
+    }
+    months.push({ name: `${monthNames[m]} ${y}`, monthIndex: m, year: y });
+  }
+
   insertedStudents.forEach((student, i) => {
-    months.forEach((month, mIndex) => {
+    months.forEach((monthObj, mIndex) => {
       // Create some variation
       let status = "paid";
-      if (mIndex === 4) status = ["paid", "pending", "overdue"][i % 3]; // May
-      if (mIndex === 3 && i % 5 === 0) status = "overdue"; // Some April overdue
+      if (mIndex === 4) status = ["paid", "pending", "overdue"][i % 3]; // current month
+      if (mIndex === 3 && i % 5 === 0) status = "overdue"; // Some previous month overdue
 
       const total = student.class === "Class 10" ? 8300 : 6700;
       
@@ -171,7 +179,7 @@ async function seed() {
         student: student._id,
         studentName: student.name,
         class: student.class,
-        month: month,
+        month: monthObj.name,
         academicYear: "2024-2025",
         tuitionFee: student.class === "Class 10" ? 6000 : 5000,
         examFee: student.class === "Class 10" ? 1500 : 1000,
@@ -180,8 +188,8 @@ async function seed() {
         totalAmount: total,
         netAmount: total,
         status: status,
-        dueDate: new Date(2025, mIndex, 10),
-        paidDate: status === "paid" ? new Date(2025, mIndex, 5) : null
+        dueDate: new Date(monthObj.year, monthObj.monthIndex, 10),
+        paidDate: status === "paid" ? new Date(monthObj.year, monthObj.monthIndex, 5) : null
       });
     });
   });
@@ -195,7 +203,7 @@ async function seed() {
   if (class10Students.length > 0) {
     // Generate for last 10 days
     for (let i = 0; i < 10; i++) {
-      const date = new Date(2025, 4, i + 1); // May 1 to May 10
+      const date = new Date(currentYear, currentMonth, i + 1); // Current month 1 to 10
       const records = class10Students.map((s, index) => {
         let status = "present";
         // Make some students have poor attendance (e.g. index 0 and 1)
@@ -247,7 +255,7 @@ async function seed() {
         maxMarks: 100,
         percentage: percentage,
         grade: grade,
-        date: new Date(2025, 3, 15) // April 15
+        date: new Date(currentYear, currentMonth, 15) // Current month 15
       });
     });
   });
@@ -292,7 +300,6 @@ async function seed() {
   console.log("   Super Admin:  super@falsfa.com / admin123");
   console.log("   School Admin: admin@greenvalley.edu / admin123");
   console.log("   Teacher:      sarah@greenvalley.edu / admin123");
-  console.log("   Student:      ali@greenvalley.edu / admin123");
 
   process.exit(0);
 }

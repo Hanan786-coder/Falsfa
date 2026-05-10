@@ -76,13 +76,6 @@ export default function DashboardPage() {
           { title: 'Pending Tasks', value: stats?.pendingTasks || 0, icon: Activity, color: 'text-purple-500', bg: 'bg-purple-500/10' },
           { title: 'Avg Attendance', value: `${stats?.avgAttendance || 0}%`, icon: Calendar, color: 'text-amber-500', bg: 'bg-amber-500/10' },
         ]
-      case 'student':
-        return [
-          { title: 'My Attendance', value: `${stats?.attendance || 0}%`, icon: Calendar, color: 'text-blue-500', bg: 'bg-blue-500/10' },
-          { title: 'Pending Fee', value: `PKR ${stats?.pendingFee || 0}`, icon: DollarSign, color: 'text-rose-500', bg: 'bg-rose-500/10' },
-          { title: 'Current Grade', value: stats?.grade || 'N/A', icon: FileText, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
-          { title: 'Assignments', value: stats?.assignments || 0, icon: BookOpen, color: 'text-purple-500', bg: 'bg-purple-500/10' },
-        ]
       default:
         return []
     }
@@ -110,12 +103,6 @@ export default function DashboardPage() {
           { label: 'Record Attendance', icon: <CheckCircle className="w-6 h-6 text-emerald-600" />, color: 'from-emerald-500/10 to-emerald-600/5', path: '/attendance' },
           { label: 'View Schedule', icon: <Calendar className="w-6 h-6 text-blue-600" />, color: 'from-blue-500/10 to-blue-600/5', path: '/my-classes' },
         ]
-      case 'student':
-        return [
-          { label: 'View Results', icon: <FileText className="w-6 h-6 text-purple-600" />, color: 'from-purple-500/10 to-purple-600/5', path: '/dashboard' },
-          { label: 'Pay Fee', icon: <CreditCard className="w-6 h-6 text-amber-600" />, color: 'from-amber-500/10 to-amber-600/5', path: '/dashboard' },
-          { label: 'View Schedule', icon: <Calendar className="w-6 h-6 text-blue-600" />, color: 'from-blue-500/10 to-blue-600/5', path: '/dashboard' },
-        ]
       default:
         return []
     }
@@ -124,8 +111,7 @@ export default function DashboardPage() {
   const roleLabels = {
     superadmin: 'Platform Overview',
     admin: "School Administrator Dashboard",
-    teacher: "Teacher's Portal",
-    student: "Student Dashboard"
+    teacher: "Teacher's Portal"
   }
 
   const STATS_CARDS = getStatsCards()

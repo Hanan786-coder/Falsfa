@@ -11,10 +11,15 @@ import {
   PieChart, Pie, Cell, LineChart, Line
 } from 'recharts'
 
+import { useAuth } from '@/context/AuthContext'
+
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#a28CFE', '#ff6b6b']
 
 export default function ReportsPage() {
-  const [activeTab, setActiveTab] = useState('academic')
+  const { user } = useAuth()
+  const isTeacher = user?.role === 'teacher'
+
+  const [activeTab, setActiveTab] = useState(isTeacher ? 'attendance' : 'academic')
   const [loading, setLoading] = useState(false)
   const [data, setData] = useState({ academic: null, attendance: null, finance: null })
 
@@ -57,9 +62,9 @@ export default function ReportsPage() {
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="print:block">
         <TabsList className="print:hidden">
-          <TabsTrigger value="academic">Academic</TabsTrigger>
+          {!isTeacher && <TabsTrigger value="academic">Academic</TabsTrigger>}
           <TabsTrigger value="attendance">Attendance</TabsTrigger>
-          <TabsTrigger value="finance">Finance</TabsTrigger>
+          {!isTeacher && <TabsTrigger value="finance">Finance</TabsTrigger>}
         </TabsList>
 
         <div className="mt-6 print:mt-0">
@@ -68,89 +73,91 @@ export default function ReportsPage() {
           ) : (
             <>
               {/* ACADEMIC TAB */}
-              <TabsContent value="academic" className="space-y-6 print:block">
-                <div className="grid gap-6 md:grid-cols-2">
-                  <Card>
-                    <CardHeader><CardTitle className="text-base">Subject Averages</CardTitle></CardHeader>
-                    <CardContent>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={data.academic?.subjectAverages || []}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="_id" />
-                          <YAxis />
-                          <ReTooltip />
-                          <Bar dataKey="avgPercentage" fill="#3b82f6" name="Avg %" radius={[4, 4, 0, 0]} />
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card>
-                    <CardHeader><CardTitle className="text-base">Grade Distribution</CardTitle></CardHeader>
-                    <CardContent>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <PieChart>
-                          <Pie
-                            data={data.academic?.gradeDistribution || []}
-                            dataKey="count"
-                            nameKey="gradeBand"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={100}
-                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                          >
-                            {(data.academic?.gradeDistribution || []).map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                            ))}
-                          </Pie>
-                          <ReTooltip />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </CardContent>
-                  </Card>
-                </div>
+              {!isTeacher && (
+                <TabsContent value="academic" className="space-y-6 print:block">
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <Card>
+                      <CardHeader><CardTitle className="text-base">Subject Averages</CardTitle></CardHeader>
+                      <CardContent>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <BarChart data={data.academic?.subjectAverages || []}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="_id" />
+                            <YAxis />
+                            <ReTooltip />
+                            <Bar dataKey="avgPercentage" fill="#3b82f6" name="Avg %" radius={[4, 4, 0, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardHeader><CardTitle className="text-base">Grade Distribution</CardTitle></CardHeader>
+                      <CardContent>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <PieChart>
+                            <Pie
+                              data={data.academic?.gradeDistribution || []}
+                              dataKey="count"
+                              nameKey="gradeBand"
+                              cx="50%"
+                              cy="50%"
+                              outerRadius={100}
+                              label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                            >
+                              {(data.academic?.gradeDistribution || []).map((entry, index) => (
+                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                              ))}
+                            </Pie>
+                            <ReTooltip />
+                          </PieChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
+                  </div>
 
-                <div className="grid gap-6 md:grid-cols-2">
-                  <Card>
-                    <CardHeader><CardTitle className="text-base">Top Performers</CardTitle></CardHeader>
-                    <CardContent>
-                      <Table>
-                        <TableHeader>
-                          <TableRow><TableHead>Name</TableHead><TableHead>Class</TableHead><TableHead className="text-right">Avg %</TableHead></TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {(data.academic?.topStudents || []).map(s => (
-                            <TableRow key={s.rollNo}>
-                              <TableCell className="font-medium">{s.name}</TableCell>
-                              <TableCell>{s.class}</TableCell>
-                              <TableCell className="text-right font-bold text-emerald-600">{s.avgPercentage}%</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </CardContent>
-                  </Card>
-                  <Card>
-                    <CardHeader><CardTitle className="text-base">At-Risk Students (&lt;60%)</CardTitle></CardHeader>
-                    <CardContent>
-                      <Table>
-                        <TableHeader>
-                          <TableRow><TableHead>Name</TableHead><TableHead>Class</TableHead><TableHead className="text-right">Avg %</TableHead></TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {(data.academic?.atRiskStudents || []).map(s => (
-                            <TableRow key={s.rollNo}>
-                              <TableCell className="font-medium">{s.name}</TableCell>
-                              <TableCell>{s.class}</TableCell>
-                              <TableCell className="text-right font-bold text-red-600">{s.avgPercentage}%</TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </CardContent>
-                  </Card>
-                </div>
-              </TabsContent>
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <Card>
+                      <CardHeader><CardTitle className="text-base">Top Performers</CardTitle></CardHeader>
+                      <CardContent>
+                        <Table>
+                          <TableHeader>
+                            <TableRow><TableHead>Name</TableHead><TableHead>Class</TableHead><TableHead className="text-right">Avg %</TableHead></TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {(data.academic?.topStudents || []).map(s => (
+                              <TableRow key={s.rollNo}>
+                                <TableCell className="font-medium">{s.name}</TableCell>
+                                <TableCell>{s.class}</TableCell>
+                                <TableCell className="text-right font-bold text-emerald-600">{s.avgPercentage}%</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardHeader><CardTitle className="text-base">At-Risk Students (&lt;60%)</CardTitle></CardHeader>
+                      <CardContent>
+                        <Table>
+                          <TableHeader>
+                            <TableRow><TableHead>Name</TableHead><TableHead>Class</TableHead><TableHead className="text-right">Avg %</TableHead></TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {(data.academic?.atRiskStudents || []).map(s => (
+                              <TableRow key={s.rollNo}>
+                                <TableCell className="font-medium">{s.name}</TableCell>
+                                <TableCell>{s.class}</TableCell>
+                                <TableCell className="text-right font-bold text-red-600">{s.avgPercentage}%</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </TabsContent>
+              )}
 
               {/* ATTENDANCE TAB */}
               <TabsContent value="attendance" className="space-y-6 print:block">
@@ -193,64 +200,66 @@ export default function ReportsPage() {
               </TabsContent>
 
               {/* FINANCE TAB */}
-              <TabsContent value="finance" className="space-y-6 print:block">
-                <div className="grid gap-6 md:grid-cols-2">
+              {!isTeacher && (
+                <TabsContent value="finance" className="space-y-6 print:block">
+                  <div className="grid gap-6 md:grid-cols-2">
+                    <Card>
+                      <CardHeader><CardTitle className="text-base">Monthly Collection Trend</CardTitle></CardHeader>
+                      <CardContent>
+                        <ResponsiveContainer width="100%" height={300}>
+                          <LineChart data={data.finance?.monthlyTrend || []}>
+                            <CartesianGrid strokeDasharray="3 3" />
+                            <XAxis dataKey="_id" />
+                            <YAxis />
+                            <ReTooltip />
+                            <Line type="monotone" dataKey="collectionRate" stroke="#8b5cf6" name="Collection Rate %" strokeWidth={3} />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      </CardContent>
+                    </Card>
+                    
+                    <Card>
+                      <CardHeader><CardTitle className="text-base">Class-wise Defaulters</CardTitle></CardHeader>
+                      <CardContent>
+                        <Table>
+                          <TableHeader>
+                            <TableRow><TableHead>Class</TableHead><TableHead className="text-center">Defaulters</TableHead><TableHead className="text-right">Outstanding</TableHead></TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {(data.finance?.classWiseDefaulters || []).map(c => (
+                              <TableRow key={c._id}>
+                                <TableCell className="font-medium">{c._id}</TableCell>
+                                <TableCell className="text-center">{c.defaulterCount}</TableCell>
+                                <TableCell className="text-right font-bold text-red-600">{formatCurrency(c.outstandingAmount)}</TableCell>
+                              </TableRow>
+                            ))}
+                          </TableBody>
+                        </Table>
+                      </CardContent>
+                    </Card>
+                  </div>
+
                   <Card>
-                    <CardHeader><CardTitle className="text-base">Monthly Collection Trend</CardTitle></CardHeader>
-                    <CardContent>
-                      <ResponsiveContainer width="100%" height={300}>
-                        <LineChart data={data.finance?.monthlyTrend || []}>
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis dataKey="_id" />
-                          <YAxis />
-                          <ReTooltip />
-                          <Line type="monotone" dataKey="collectionRate" stroke="#8b5cf6" name="Collection Rate %" strokeWidth={3} />
-                        </LineChart>
-                      </ResponsiveContainer>
-                    </CardContent>
-                  </Card>
-                  
-                  <Card>
-                    <CardHeader><CardTitle className="text-base">Class-wise Defaulters</CardTitle></CardHeader>
+                    <CardHeader><CardTitle className="text-base">Top 10 Defaulters</CardTitle></CardHeader>
                     <CardContent>
                       <Table>
                         <TableHeader>
-                          <TableRow><TableHead>Class</TableHead><TableHead className="text-center">Defaulters</TableHead><TableHead className="text-right">Outstanding</TableHead></TableRow>
+                          <TableRow><TableHead>Student</TableHead><TableHead>Class</TableHead><TableHead className="text-right">Total Owed</TableHead></TableRow>
                         </TableHeader>
                         <TableBody>
-                          {(data.finance?.classWiseDefaulters || []).map(c => (
-                            <TableRow key={c._id}>
-                              <TableCell className="font-medium">{c._id}</TableCell>
-                              <TableCell className="text-center">{c.defaulterCount}</TableCell>
-                              <TableCell className="text-right font-bold text-red-600">{formatCurrency(c.outstandingAmount)}</TableCell>
+                          {(data.finance?.topDefaulters || []).map(d => (
+                            <TableRow key={d._id}>
+                              <TableCell className="font-medium">{d.studentName}</TableCell>
+                              <TableCell>{d.class}</TableCell>
+                              <TableCell className="text-right font-bold text-red-600">{formatCurrency(d.totalOwed)}</TableCell>
                             </TableRow>
                           ))}
                         </TableBody>
                       </Table>
                     </CardContent>
                   </Card>
-                </div>
-
-                <Card>
-                  <CardHeader><CardTitle className="text-base">Top 10 Defaulters</CardTitle></CardHeader>
-                  <CardContent>
-                    <Table>
-                      <TableHeader>
-                        <TableRow><TableHead>Student</TableHead><TableHead>Class</TableHead><TableHead className="text-right">Total Owed</TableHead></TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {(data.finance?.topDefaulters || []).map(d => (
-                          <TableRow key={d._id}>
-                            <TableCell className="font-medium">{d.studentName}</TableCell>
-                            <TableCell>{d.class}</TableCell>
-                            <TableCell className="text-right font-bold text-red-600">{formatCurrency(d.totalOwed)}</TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  </CardContent>
-                </Card>
-              </TabsContent>
+                </TabsContent>
+              )}
             </>
           )}
         </div>
