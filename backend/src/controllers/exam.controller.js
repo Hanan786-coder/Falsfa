@@ -43,6 +43,10 @@ exports.saveResults = async (req, res) => {
   try {
     const { results, examType, subject, class: className, section, maxMarks, date } = req.body;
     const schoolId = req.schoolId || req.body.school;
+    
+    // Parse the date to ensure we're matching the same day when updating
+    const startOfDay = date ? new Date(date) : new Date();
+    startOfDay.setUTCHours(0, 0, 0, 0);
 
     const operations = results.map((r) => ({
       updateOne: {
@@ -51,6 +55,10 @@ exports.saveResults = async (req, res) => {
           student: r.studentId,
           examType,
           subject,
+          date: {
+            $gte: startOfDay,
+            $lt: new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000)
+          }
         },
         update: {
           $set: {
@@ -60,7 +68,7 @@ exports.saveResults = async (req, res) => {
             section,
             percentage: Math.round((r.marksObtained / maxMarks) * 100 * 100) / 100,
             grade: calcGrade(Math.round((r.marksObtained / maxMarks) * 100)),
-            ...(date && { date: new Date(date) }),
+            date: startOfDay,
           },
         },
         upsert: true,
@@ -85,15 +93,26 @@ exports.getStudentsForExam = async (req, res) => {
       .select("name rollNo class section")
       .sort({ rollNo: 1 }).lean();
 
-    const { examType, subject } = req.query;
+    const { examType, subject, date } = req.query;
     if (examType && subject) {
       const studentIds = students.map(s => s._id);
-      const existingResults = await ExamResult.find({
+      const queryFilter = {
         school: filter.school,
         student: { $in: studentIds },
         examType,
         subject: subject.toLowerCase()
-      }).lean();
+      };
+
+      if (date) {
+        const startOfDay = new Date(date);
+        startOfDay.setUTCHours(0, 0, 0, 0);
+        queryFilter.date = {
+          $gte: startOfDay,
+          $lt: new Date(startOfDay.getTime() + 24 * 60 * 60 * 1000)
+        };
+      }
+
+      const existingResults = await ExamResult.find(queryFilter).lean();
 
       const resultMap = {};
       existingResults.forEach(r => {

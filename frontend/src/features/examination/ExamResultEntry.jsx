@@ -7,7 +7,6 @@ import { Badge } from '@/components/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ClipboardList, Save, AlertCircle, CheckCircle2, Loader2, Calendar } from 'lucide-react'
-import { Label } from '@/components/ui/label'
 import { useTenant } from '@/context/TenantContext'
 import { useAuth } from '@/context/AuthContext'
 
@@ -77,6 +76,14 @@ export default function ExamResultEntry() {
     ? [...new Set(teacherAssignments.map(a => a.class))]
     : combinedClasses
 
+  const availableSections = isTeacher
+    ? [...new Set(
+        teacherAssignments
+          .filter(a => !selectedClass || a.class === selectedClass)
+          .map(a => a.section)
+      )]
+    : combinedSections
+
   const availableSubjects = isTeacher
     ? [...new Set(
         teacherAssignments
@@ -86,11 +93,11 @@ export default function ExamResultEntry() {
     : combinedSubjects
 
   const loadGrid = async () => {
-    if (!selectedClass || !selectedSection || !examType || !subject) return
+    if (!selectedClass || !selectedSection || !examType || !subject || !examDate) return
     setLoading(true)
     try {
       const res = await api.get('/exams/students', {
-        params: { class: selectedClass, section: selectedSection, examType, subject }
+        params: { class: selectedClass, section: selectedSection, examType, subject, date: examDate }
       })
       const students = res.data.data || []
       const data = students.map(s => ({
@@ -136,6 +143,28 @@ export default function ExamResultEntry() {
     })
     setSaved(false)
   }, [maxMarks])
+
+  const handleMaxMarksChange = useCallback((e) => {
+    const rawVal = e.target.value
+    const newMax = rawVal === '' ? '' : Number(rawVal)
+    setMaxMarks(newMax)
+    setEntries(prev => prev.map(entry => {
+      let error = ''
+      let percentage = 0
+      let grade = ''
+      const marks = entry.marksObtained
+      
+      if (marks !== '' && newMax !== '' && marks > newMax) {
+        error = `Max: ${newMax}`
+      }
+      if (marks !== '' && !error && newMax > 0) {
+        percentage = Math.round((marks / newMax) * 100 * 100) / 100
+        grade = calcGrade(percentage)
+      }
+      return { ...entry, maxMarks: newMax, percentage, grade, error }
+    }))
+    setSaved(false)
+  }, [])
 
   const handleKeyDown = (e, index) => {
     if (e.key === 'Enter' || e.key === 'Tab') {
@@ -194,14 +223,14 @@ export default function ExamResultEntry() {
 
       <Card>
         <CardContent className="p-4">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-            <Select value={selectedClass} onValueChange={(val) => { setSelectedClass(val); setSubject('') }}>
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-7 gap-3">
+            <Select value={selectedClass} onValueChange={(val) => { setSelectedClass(val); setSelectedSection(''); setSubject('') }}>
               <SelectTrigger><SelectValue placeholder="Class" /></SelectTrigger>
               <SelectContent>{availableClasses.map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}</SelectContent>
             </Select>
-            <Select value={selectedSection} onValueChange={setSelectedSection}>
+            <Select value={selectedSection} onValueChange={setSelectedSection} disabled={isTeacher && !selectedClass}>
               <SelectTrigger><SelectValue placeholder="Section" /></SelectTrigger>
-              <SelectContent>{combinedSections.map(s => <SelectItem key={s} value={s}>Section {s}</SelectItem>)}</SelectContent>
+              <SelectContent>{availableSections.map(s => <SelectItem key={s} value={s}>Section {s}</SelectItem>)}</SelectContent>
             </Select>
             <Select value={examType} onValueChange={setExamType}>
               <SelectTrigger><SelectValue placeholder="Exam Type" /></SelectTrigger>
@@ -228,6 +257,16 @@ export default function ExamResultEntry() {
                   title="Exam Date"
                 />
               </div>
+            </div>
+            <div className="flex flex-col gap-1">
+              <Input
+                type="number"
+                min={1}
+                value={maxMarks}
+                onChange={handleMaxMarksChange}
+                placeholder="Max Marks"
+                title="Max Marks"
+              />
             </div>
             <Button onClick={loadGrid} disabled={!selectedClass || !selectedSection || !examType || !subject || loading}>
               {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}

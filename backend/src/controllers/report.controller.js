@@ -213,6 +213,27 @@ exports.getAttendanceReport = async (req, res) => {
     };
     if (req.query.class) matchStage.class = req.query.class;
 
+    // Restrict report data for teachers to only their assigned classes
+    if (req.user && req.user.role === "teacher") {
+      const Staff = require("../models/Staff");
+      const teacher = await Staff.findOne({ user: req.user.id });
+      const assignments = teacher?.assignments || [];
+      if (assignments.length > 0) {
+        const uniqueAssignments = [...new Map(assignments.map(a => [`${a.class}::${a.section}`, a])).values()];
+        matchStage.$or = uniqueAssignments.map(a => {
+          const classMatch = { class: a.class };
+          if (a.section) classMatch.section = a.section;
+          return classMatch;
+        });
+      } else {
+        // Teacher has no assignments, return empty arrays to prevent showing the whole school
+        return res.json({
+          success: true,
+          data: { atRiskStudents: [], classSummary: [], attendanceTrends: [] }
+        });
+      }
+    }
+
     const [reportData] = await Attendance.aggregate([
       { $match: matchStage },
 

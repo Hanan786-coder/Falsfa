@@ -13,6 +13,7 @@ import { format } from 'date-fns'
 export default function AttendancePage() {
   const [classes, setClasses] = useState([])
   const [selectedClass, setSelectedClass] = useState('')
+  const [selectedSection, setSelectedSection] = useState('')
   const [date, setDate] = useState(format(new Date(), 'yyyy-MM-dd'))
   
   const [students, setStudents] = useState([])
@@ -26,7 +27,7 @@ export default function AttendancePage() {
       try {
         const res = await api.get('/classes/my-classes')
         if (res.data.success) {
-          setClasses(res.data.data)
+          setClasses(res.data.assignments || res.data.data || [])
         }
       } catch (err) {
         toast.error('Failed to load your classes')
@@ -35,13 +36,25 @@ export default function AttendancePage() {
     fetchClasses()
   }, [])
 
-  // Fetch students when a class is selected
+  const availableClasses = [...new Set(classes.map(item => item.class || item))]
+  const availableSections = selectedClass
+    ? [...new Set(
+        classes
+          .filter(item => (item.class || item) === selectedClass)
+          .map(item => item.section)
+          .filter(Boolean)
+      )]
+    : []
+
+  // Fetch students when a class and section are selected
   useEffect(() => {
-    if (!selectedClass) return
+    if (!selectedClass || !selectedSection) return
     const fetchStudents = async () => {
       setLoading(true)
       try {
-        const res = await api.get(`/classes/${selectedClass}/students`)
+        const res = await api.get(`/classes/${selectedClass}/students`, {
+          params: { section: selectedSection }
+        })
         if (res.data.success) {
           setStudents(res.data.data)
           // Initialize all to present
@@ -58,7 +71,7 @@ export default function AttendancePage() {
       }
     }
     fetchStudents()
-  }, [selectedClass])
+  }, [selectedClass, selectedSection])
 
   const toggleStatus = (studentId) => {
     setAttendance(prev => {
@@ -75,7 +88,7 @@ export default function AttendancePage() {
   }
 
   const handleSubmit = async () => {
-    if (!selectedClass || students.length === 0) return
+    if (!selectedClass || !selectedSection || students.length === 0) return
     setSubmitting(true)
 
     const records = students.map(s => ({
@@ -87,6 +100,7 @@ export default function AttendancePage() {
     try {
       await api.post('/attendance', {
         class: selectedClass,
+        section: selectedSection,
         date,
         records
       })
@@ -110,13 +124,30 @@ export default function AttendancePage() {
           <div className="flex flex-col sm:flex-row gap-4">
             <div className="space-y-2 flex-1">
               <Label>Select Class</Label>
-              <Select value={selectedClass} onValueChange={setSelectedClass}>
+              <Select value={selectedClass} onValueChange={(value) => { setSelectedClass(value); setSelectedSection(''); setStudents([]); setAttendance({}) }}>
                 <SelectTrigger>
                   <SelectValue placeholder="Choose a class" />
                 </SelectTrigger>
                 <SelectContent>
-                  {classes.map(cls => (
+                  {availableClasses.map(cls => (
                     <SelectItem key={cls} value={cls}>{cls}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2 flex-1">
+              <Label>Select Section</Label>
+              <Select
+                value={selectedSection}
+                onValueChange={setSelectedSection}
+                disabled={!selectedClass || availableSections.length === 0}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Choose a section" />
+                </SelectTrigger>
+                <SelectContent>
+                  {availableSections.map(section => (
+                    <SelectItem key={section} value={section}>Section {section}</SelectItem>
                   ))}
                 </SelectContent>
               </Select>
@@ -142,7 +173,7 @@ export default function AttendancePage() {
           <CardHeader className="flex flex-row items-center justify-between py-4 border-b">
             <div>
               <CardTitle className="text-lg">Student List</CardTitle>
-              <CardDescription>Click on status badges to toggle between Present, Absent, and Late.</CardDescription>
+              <CardDescription>Click on status badges to toggle between Present, Absent, and Late. Only students from the selected section are loaded.</CardDescription>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" size="sm" onClick={() => markAll('present')} className="text-emerald-600">Mark All Present</Button>
@@ -158,7 +189,7 @@ export default function AttendancePage() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="w-[80px]">Roll No.</TableHead>
+                    <TableHead className="w-20">Roll No.</TableHead>
                     <TableHead>Student Name</TableHead>
                     <TableHead className="text-right">Attendance Status</TableHead>
                   </TableRow>
@@ -193,7 +224,7 @@ export default function AttendancePage() {
             )}
           </CardContent>
           <div className="p-4 border-t flex justify-end bg-muted/20">
-            <Button onClick={handleSubmit} disabled={submitting || students.length === 0} className="w-full sm:w-auto">
+              <Button onClick={handleSubmit} disabled={submitting || students.length === 0 || !selectedSection} className="w-full sm:w-auto">
               {submitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
               Submit Attendance
             </Button>

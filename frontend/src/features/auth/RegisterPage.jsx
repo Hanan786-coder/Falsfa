@@ -94,14 +94,14 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a] text-white flex relative overflow-hidden">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a1a] text-gray-900 dark:text-white flex relative overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0">
         <div className="absolute top-20 right-1/4 w-[600px] h-[600px] rounded-full bg-blue-600/8 blur-[120px] animate-[float_8s_ease-in-out_infinite]" />
         <div className="absolute bottom-20 left-1/4 w-[500px] h-[500px] rounded-full bg-indigo-600/8 blur-[120px] animate-[float_10s_ease-in-out_infinite_reverse]" />
       </div>
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.015)_1px,transparent_1px)] bg-[size:60px_60px]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,#0a0a1a_70%)]" />
+      <div className="absolute inset-0 dark:bg-[linear-gradient(rgba(255,255,255,.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.015)_1px,transparent_1px)] dark:bg-[size:60px_60px]" />
+      <div className="absolute inset-0 dark:bg-[radial-gradient(ellipse_at_center,transparent_0%,#0a0a1a_70%)]" />
 
       {/* Left panel - branding (hidden on mobile) */}
       <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center p-12">
@@ -114,16 +114,16 @@ export default function RegisterPage() {
           </Link>
           <h2 className="text-4xl font-bold leading-tight mb-6">
             Join the future of{' '}
-            <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-blue-500 dark:from-blue-400 to-indigo-600 dark:to-indigo-400 bg-clip-text text-transparent">
               school management
             </span>
           </h2>
-          <p className="text-white/40 text-lg leading-relaxed mb-10">
+          <p className="text-gray-700 dark:text-white/40 text-lg leading-relaxed mb-10">
             Get started in minutes. Manage your entire school from one powerful dashboard.
           </p>
           <div className="space-y-4">
             {['Free to start, upgrade anytime', 'No credit card required', 'Full support during setup'].map((item) => (
-              <div key={item} className="flex items-center gap-3 text-white/50">
+              <div key={item} className="flex items-center gap-3 text-gray-600 dark:text-white/50">
                 <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
                 <span className="text-sm">{item}</span>
               </div>
@@ -145,20 +145,20 @@ export default function RegisterPage() {
             </Link>
           </div>
 
-          <div className="p-8 rounded-3xl bg-white/[0.03] border border-white/[0.08] backdrop-blur-xl shadow-2xl">
+          <div className="p-8 rounded-3xl bg-white border dark:bg-white/[0.03] dark:border-white/[0.08] backdrop-blur-xl shadow-2xl">
             <div className="text-center mb-8">
-              <h1 className="text-2xl font-bold mb-2">Register Your School</h1>
-              <p className="text-sm text-white/40">Create your account and get started</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Register Your School</h1>
+              <p className="text-sm text-gray-600 dark:text-white/40">Create your account and get started</p>
             </div>
 
             {/* Step indicator */}
             <div className="flex items-center gap-3 mb-8">
-              <div className={`flex-1 h-1 rounded-full transition-all duration-500 ${step >= 1 ? 'bg-gradient-to-r from-blue-500 to-indigo-500' : 'bg-white/10'}`} />
-              <div className={`flex-1 h-1 rounded-full transition-all duration-500 ${step >= 2 ? 'bg-gradient-to-r from-indigo-500 to-violet-500' : 'bg-white/10'}`} />
+              <div className={`flex-1 h-1 rounded-full transition-all duration-500 ${step >= 1 ? 'bg-gradient-to-r from-blue-500 to-indigo-500' : 'bg-gray-200 dark:bg-white/10'}`} />
+              <div className={`flex-1 h-1 rounded-full transition-all duration-500 ${step >= 2 ? 'bg-gradient-to-r from-indigo-500 to-violet-500' : 'bg-gray-200 dark:bg-white/10'}`} />
             </div>
 
             {errorMsg && (
-              <div className="mb-6 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+              <div className="mb-6 p-3 rounded-xl bg-red-100 dark:bg-red-500/10 border border-red-300 dark:border-red-500/20 text-sm text-red-700 dark:text-red-400">
                 {errorMsg}
               </div>
             )}
@@ -167,37 +167,37 @@ export default function RegisterPage() {
               {/* Step 1: School Information */}
               <div className={`transition-all duration-500 ${step === 1 ? 'block' : 'hidden'}`}>
                 <div className="flex items-center gap-2 mb-5">
-                  <School className="h-4 w-4 text-blue-400" />
-                  <span className="text-sm font-medium text-blue-400">School Information</span>
+                  <School className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  <span className="text-sm font-medium text-blue-600 dark:text-blue-400">School Information</span>
                 </div>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-white/60 text-xs">School Name</Label>
+                    <Label className="text-gray-700 dark:text-white/60 text-xs">School Name</Label>
                     <Input
                       value={form.schoolName}
                       onChange={(e) => updateField('schoolName', e.target.value)}
                       placeholder="e.g., Al-Huda Academy"
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-blue-400/50 h-11 rounded-xl"
+                      className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 focus-visible:ring-blue-400/50 h-11 rounded-xl"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-white/60 text-xs">City</Label>
+                    <Label className="text-gray-700 dark:text-white/60 text-xs">City</Label>
                     <Input
                       value={form.city}
                       onChange={(e) => updateField('city', e.target.value)}
                       placeholder="e.g., Lahore"
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-blue-400/50 h-11 rounded-xl"
+                      className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 focus-visible:ring-blue-400/50 h-11 rounded-xl"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-white/60 text-xs">Approximate Students</Label>
+                    <Label className="text-gray-700 dark:text-white/60 text-xs">Approximate Students</Label>
                     <Select value={form.approximateStudents} onValueChange={(v) => updateField('approximateStudents', v)}>
-                      <SelectTrigger className="bg-white/5 border-white/10 text-white h-11 rounded-xl [&>span]:text-white/40">
+                      <SelectTrigger className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white h-11 rounded-xl [&>span]:text-gray-400 dark:[&>span]:text-white/40">
                         <SelectValue placeholder="Select range" />
                       </SelectTrigger>
-                      <SelectContent className="bg-[#1a1a2e] border-white/10">
+                      <SelectContent className="bg-white dark:bg-[#1a1a2e] border-gray-200 dark:border-white/10">
                         {STUDENT_RANGES.map((r) => (
-                          <SelectItem key={r} value={r} className="text-white/80 focus:bg-white/10 focus:text-white">{r}</SelectItem>
+                          <SelectItem key={r} value={r} className="text-gray-900 dark:text-white/80 focus:bg-gray-100 dark:focus:bg-white/10 focus:text-gray-900 dark:focus:text-white">{r}</SelectItem>
                         ))}
                       </SelectContent>
                     </Select>
@@ -205,7 +205,7 @@ export default function RegisterPage() {
                   <Button
                     type="button"
                     onClick={handleNext}
-                    className="w-full h-11 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 shadow-lg shadow-blue-500/20 text-white mt-2"
+                    className="w-full h-11 rounded-xl bg-gradient-to-r from-blue-600 dark:from-blue-500 to-indigo-700 dark:to-indigo-600 hover:from-blue-700 dark:hover:from-blue-600 hover:to-indigo-800 dark:hover:to-indigo-700 shadow-lg shadow-blue-500/20 text-white mt-2"
                   >
                     Next
                     <ArrowLeft className="h-4 w-4 ml-2 rotate-180" />
@@ -218,70 +218,70 @@ export default function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => { setStep(1); setErrorMsg('') }}
-                  className="flex items-center gap-1.5 text-sm text-white/40 hover:text-white/60 mb-5 transition-colors"
+                  className="flex items-center gap-1.5 text-sm text-gray-600 dark:text-white/40 hover:text-gray-900 dark:hover:text-white/60 mb-5 transition-colors"
                 >
                   <ArrowLeft className="h-3.5 w-3.5" />
                   Back
                 </button>
                 <div className="flex items-center gap-2 mb-5">
-                  <UserCircle className="h-4 w-4 text-violet-400" />
-                  <span className="text-sm font-medium text-violet-400">Admin Account</span>
+                  <UserCircle className="h-4 w-4 text-violet-600 dark:text-violet-400" />
+                  <span className="text-sm font-medium text-violet-600 dark:text-violet-400">Admin Account</span>
                 </div>
                 <div className="space-y-4">
                   <div className="space-y-2">
-                    <Label className="text-white/60 text-xs">Your Full Name</Label>
+                    <Label className="text-gray-700 dark:text-white/60 text-xs">Your Full Name</Label>
                     <Input
                       value={form.adminName}
                       onChange={(e) => updateField('adminName', e.target.value)}
                       placeholder="Full name"
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-blue-400/50 h-11 rounded-xl"
+                      className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 focus-visible:ring-blue-400/50 h-11 rounded-xl"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-white/60 text-xs">Email Address</Label>
+                    <Label className="text-gray-700 dark:text-white/60 text-xs">Email Address</Label>
                     <Input
                       type="email"
                       value={form.email}
                       onChange={(e) => updateField('email', e.target.value)}
                       placeholder="your@email.com"
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-blue-400/50 h-11 rounded-xl"
+                      className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 focus-visible:ring-blue-400/50 h-11 rounded-xl"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-white/60 text-xs">Phone Number</Label>
+                    <Label className="text-gray-700 dark:text-white/60 text-xs">Phone Number</Label>
                     <Input
                       value={form.phone}
                       onChange={(e) => updateField('phone', e.target.value)}
                       placeholder="03XX-XXXXXXX"
-                      className="bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-blue-400/50 h-11 rounded-xl"
+                      className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 focus-visible:ring-blue-400/50 h-11 rounded-xl"
                     />
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-white/60 text-xs">Password</Label>
+                    <Label className="text-gray-700 dark:text-white/60 text-xs">Password</Label>
                     <div className="relative">
                       <Input
                         type={showPassword ? 'text' : 'password'}
                         value={form.password}
                         onChange={(e) => updateField('password', e.target.value)}
                         placeholder="Minimum 8 characters"
-                        className="bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-blue-400/50 h-11 rounded-xl pr-10"
+                        className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 focus-visible:ring-blue-400/50 h-11 rounded-xl pr-10"
                       />
-                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">
+                      <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/30 hover:text-gray-600 dark:hover:text-white/60 transition-colors">
                         {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <Label className="text-white/60 text-xs">Confirm Password</Label>
+                    <Label className="text-gray-700 dark:text-white/60 text-xs">Confirm Password</Label>
                     <div className="relative">
                       <Input
                         type={showConfirm ? 'text' : 'password'}
                         value={form.confirmPassword}
                         onChange={(e) => updateField('confirmPassword', e.target.value)}
                         placeholder="Repeat password"
-                        className="bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-blue-400/50 h-11 rounded-xl pr-10"
+                        className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 focus-visible:ring-blue-400/50 h-11 rounded-xl pr-10"
                       />
-                      <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors">
+                      <button type="button" onClick={() => setShowConfirm(!showConfirm)} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/30 hover:text-gray-600 dark:hover:text-white/60 transition-colors">
                         {showConfirm ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     </div>
@@ -289,7 +289,7 @@ export default function RegisterPage() {
                   <Button
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full h-11 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 shadow-lg shadow-blue-500/20 text-white mt-2"
+                    className="w-full h-11 rounded-xl bg-gradient-to-r from-blue-600 dark:from-blue-500 to-indigo-700 dark:to-indigo-600 hover:from-blue-700 dark:hover:from-blue-600 hover:to-indigo-800 dark:hover:to-indigo-700 shadow-lg shadow-blue-500/20 text-white mt-2"
                   >
                     {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                     Create Account & Register School
@@ -299,9 +299,9 @@ export default function RegisterPage() {
             </form>
 
             <div className="mt-6 text-center">
-              <p className="text-sm text-white/30">
+              <p className="text-sm text-gray-600 dark:text-white/30">
                 Already have an account?{' '}
-                <Link to="/login" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+                <Link to="/login" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors">
                   Login
                 </Link>
               </p>

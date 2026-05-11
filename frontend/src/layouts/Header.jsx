@@ -1,5 +1,6 @@
 import { useAuth } from '@/context/AuthContext'
 import { useTenant } from '@/context/TenantContext'
+import { useTheme } from '@/context/ThemeContext'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
@@ -8,7 +9,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem,
   DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Bell, Search, Menu, UserCircle, Settings, LogOut, CheckCheck } from 'lucide-react'
+import { Bell, Search, Menu, UserCircle, Settings, LogOut, CheckCheck, Moon, Sun } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import api from '@/lib/api'
 import { Link } from 'react-router-dom'
@@ -30,6 +31,7 @@ const ROLE_LABELS = {
 export default function Header({ onMobileMenuToggle }) {
   const { user, logout } = useAuth()
   const { userRole } = useTenant()
+  const { theme, toggleTheme } = useTheme()
   const [notifications, setNotifications] = useState([])
   const [unreadCount, setUnreadCount] = useState(0)
 
@@ -80,6 +82,11 @@ export default function Header({ onMobileMenuToggle }) {
       <div className="flex-1"></div>
 
       <div className="flex items-center gap-3 ml-auto">
+        {/* Theme toggle */}
+        <Button variant="ghost" size="icon" onClick={toggleTheme} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
+          {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
+        </Button>
+
         {/* Notifications */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

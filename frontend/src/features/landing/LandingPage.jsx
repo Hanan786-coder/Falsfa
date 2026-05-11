@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState, useCallback } from 'react'
+import { useRef, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '@/context/AuthContext'
 import {
@@ -56,15 +56,15 @@ export default function LandingPage() {
   const [ctaRef, ctaVis] = useReveal(0.2)
 
   return (
-    <div className="bg-[#050510] text-white selection:bg-blue-500/30 relative min-h-screen">
+    <div className="bg-white dark:bg-[#050510] text-gray-900 dark:text-white selection:bg-blue-500/30 relative min-h-screen">
       {/* ── GLOBAL CONTINUOUS BACKGROUND ─────────────────────── */}
       <div className="fixed inset-0 pointer-events-none z-0">
-        <div className="absolute inset-0 bg-[#050510]" />
+        <div className="absolute inset-0 bg-white dark:bg-[#050510]" />
         <div className="absolute inset-0" style={{ transform: `translateY(${scrollY * 0.15}px)` }}>
           <div className="absolute top-[-10%] left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] rounded-full bg-blue-600/8 blur-[180px]" />
           <div className="absolute top-[40%] right-[-10%] w-[800px] h-[800px] rounded-full bg-indigo-600/6 blur-[150px]" />
         </div>
-        <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] bg-[size:80px_80px]" style={{ transform: `translateY(${scrollY * 0.05}px)` }} />
+        <div className="absolute inset-0 dark:bg-[linear-gradient(rgba(255,255,255,.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.02)_1px,transparent_1px)] dark:bg-[size:80px_80px]" style={{ transform: `translateY(${scrollY * 0.05}px)` }} />
       </div>
 
       <div className="relative z-10">
@@ -77,18 +77,18 @@ export default function LandingPage() {
               </div>
               <span className="text-lg font-bold tracking-tight text-white">Falsfa</span>
             </Link>
-            <div className="hidden md:flex items-center gap-8 text-sm text-white/60 font-medium">
-              <a href="#features" className="hover:text-white transition-colors duration-300">Features</a>
-              <a href="#modules" className="hover:text-white transition-colors duration-300">Modules</a>
-              <a href="#why" className="hover:text-white transition-colors duration-300">Why Falsfa</a>
+            <div className="hidden md:flex items-center gap-8 text-sm text-gray-600 dark:text-white/60 font-medium">
+              <a href="#features" className="hover:text-gray-900 dark:hover:text-white transition-colors duration-300">Features</a>
+              <a href="#modules" className="hover:text-gray-900 dark:hover:text-white transition-colors duration-300">Modules</a>
+              <a href="#why" className="hover:text-gray-900 dark:hover:text-white transition-colors duration-300">Why Falsfa</a>
             </div>
             <div className="flex items-center gap-3">
               {isAuthenticated ? (
                 <Link to="/dashboard" className="px-5 py-2 rounded-full bg-white text-black text-sm font-semibold hover:bg-white/90 transition-all">Dashboard</Link>
               ) : (
                 <>
-                  <Link to="/login" className="px-4 py-2 text-sm font-medium text-white/70 hover:text-white transition-colors">Login</Link>
-                  <Link to="/register" className="px-5 py-2 rounded-full bg-white text-black text-sm font-semibold hover:bg-white/90 transition-all">Get Started</Link>
+                  <Link to="/login" className="px-4 py-2 text-sm font-medium text-gray-600 dark:text-white/70 hover:text-gray-900 dark:hover:text-white transition-colors">Login</Link>
+                  <Link to="/register" className="px-5 py-2 rounded-full bg-gray-900 dark:bg-white text-white dark:text-black text-sm font-semibold hover:bg-gray-800 dark:hover:bg-white/90 transition-all">Get Started</Link>
                 </>
               )}
             </div>
@@ -103,13 +103,13 @@ export default function LandingPage() {
           {/* Content with staggered cinematic reveal */}
           <div className="relative z-10 text-center px-6 max-w-5xl mx-auto">
             <div className={`transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] ${heroVis ? 'opacity-100 translate-y-0 scale-100' : 'opacity-0 translate-y-16 scale-95'}`}>
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/10 text-xs text-blue-300 mb-10 backdrop-blur-sm">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-gray-300 dark:border-white/10 text-xs text-blue-600 dark:text-blue-300 mb-10 backdrop-blur-sm">
                 <Star className="h-3 w-3" /> Trusted by 500+ schools across Pakistan
               </div>
             </div>
 
             <h1 className={`transition-all duration-[1.4s] delay-200 ease-[cubic-bezier(0.16,1,0.3,1)] ${heroVis ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-24'}`}>
-              <span className="block text-[clamp(2.5rem,8vw,7rem)] font-black tracking-[-0.04em] leading-[0.95]">
+              <span className="block text-[clamp(2.5rem,8vw,7rem)] font-black tracking-[-0.04em] leading-[0.95] text-gray-900 dark:text-white">
                 ONE PLATFORM
               </span>
               <span className="block text-[clamp(2.5rem,8vw,7rem)] font-black tracking-[-0.04em] leading-[0.95] bg-gradient-to-r from-blue-400 via-indigo-400 to-violet-400 bg-clip-text text-transparent">
@@ -117,16 +117,16 @@ export default function LandingPage() {
               </span>
             </h1>
 
-            <p className={`max-w-2xl mx-auto text-lg text-white/40 mt-8 mb-12 leading-relaxed transition-all duration-[1.4s] delay-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${heroVis ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'}`}>
+            <p className={`max-w-2xl mx-auto text-lg text-gray-600 dark:text-white/40 mt-8 mb-12 leading-relaxed transition-all duration-[1.4s] delay-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${heroVis ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'}`}>
               Students, fees, attendance, exams and reporting — unified in one secure system designed for Pakistani schools.
             </p>
 
             <div className={`flex flex-col sm:flex-row items-center justify-center gap-4 transition-all duration-[1.4s] delay-700 ease-[cubic-bezier(0.16,1,0.3,1)] ${heroVis ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-12'}`}>
-              <Link to="/register" className="group inline-flex items-center gap-2 px-10 py-4 rounded-full bg-white text-black text-base font-bold hover:scale-105 active:scale-95 transition-transform duration-300">
+              <Link to="/register" className="group inline-flex items-center gap-2 px-10 py-4 rounded-full bg-gray-900 dark:bg-white text-white dark:text-black text-base font-bold hover:scale-105 active:scale-95 transition-transform duration-300">
                 Register now
                 <ArrowRight className="h-4 w-4 group-hover:translate-x-1.5 transition-transform duration-300" />
               </Link>
-              <Link to="/login" className="px-10 py-4 rounded-full border border-white/15 text-base font-medium hover:bg-white/5 transition-all duration-300">
+              <Link to="/login" className="px-10 py-4 rounded-full border border-gray-300 dark:border-white/15 text-gray-900 dark:text-white text-base font-medium hover:bg-gray-100 dark:hover:bg-white/5 transition-all duration-300">
                 Login
               </Link>
             </div>
@@ -134,8 +134,8 @@ export default function LandingPage() {
 
           {/* Scroll indicator */}
           <div className={`absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 transition-all duration-1000 delay-1000 ${heroVis ? 'opacity-100' : 'opacity-0'}`}>
-            <span className="text-[10px] uppercase tracking-[0.3em] text-white/20">Scroll</span>
-            <ArrowDown className="h-4 w-4 text-white/20 animate-bounce" />
+            <span className="text-[10px] uppercase tracking-[0.3em] text-gray-400 dark:text-white/20">Scroll</span>
+            <ArrowDown className="h-4 w-4 text-gray-400 dark:text-white/20 animate-bounce" />
           </div>
         </section>
 
@@ -148,20 +148,20 @@ export default function LandingPage() {
           <div className="relative max-w-7xl mx-auto">
             {/* Section header — dramatic type */}
             <div className={`mb-20 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] ${featVis ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}>
-              <p className="text-sm font-bold text-blue-400 tracking-[0.3em] uppercase mb-4">FEATURES</p>
-              <h2 className="text-[clamp(2rem,5vw,4rem)] font-black tracking-[-0.03em] leading-[1.05]">
+              <p className="text-sm font-bold text-blue-600 dark:text-blue-400 tracking-[0.3em] uppercase mb-4">FEATURES</p>
+              <h2 className="text-[clamp(2rem,5vw,4rem)] font-black tracking-[-0.03em] leading-[1.05] text-gray-900 dark:text-white">
                 EVERYTHING YOUR<br />
-                <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">SCHOOL RUNS ON</span>
+                <span className="bg-gradient-to-r from-blue-500 dark:from-blue-400 to-indigo-600 dark:to-indigo-400 bg-clip-text text-transparent">SCHOOL RUNS ON</span>
               </h2>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-white/[0.04] rounded-3xl overflow-hidden">
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-200 dark:bg-white/[0.04] rounded-3xl overflow-hidden">
               {FEATURES.map((f, i) => {
                 const Icon = f.icon
                 return (
                   <div
                     key={f.title}
-                    className={`group relative p-8 bg-[#050510] hover:bg-white/[0.03] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] cursor-default ${featVis ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'}`}
+                    className={`group relative p-8 bg-white dark:bg-[#050510] hover:bg-gray-50 dark:hover:bg-white/[0.03] transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] cursor-default ${featVis ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-16'}`}
                     style={{ transitionDelay: featVis ? `${300 + i * 120}ms` : '0ms' }}
                   >
                     {/* Hover glow line */}
@@ -170,11 +170,11 @@ export default function LandingPage() {
                     <div className="mb-5 inline-flex p-3 rounded-2xl transition-transform duration-500 group-hover:scale-110" style={{ background: `${f.color}15` }}>
                       <Icon className="h-6 w-6" style={{ color: f.color }} />
                     </div>
-                    <h3 className="text-xl font-bold mb-2 tracking-tight">{f.title}</h3>
-                    <p className="text-sm text-white/35 leading-relaxed">{f.desc}</p>
+                    <h3 className="text-xl font-bold mb-2 tracking-tight text-gray-900 dark:text-white">{f.title}</h3>
+                    <p className="text-sm text-gray-600 dark:text-white/35 leading-relaxed">{f.desc}</p>
 
                     {/* Corner arrow on hover */}
-                    <ArrowRight className="absolute bottom-6 right-6 h-5 w-5 text-white/0 group-hover:text-white/30 translate-x-2 group-hover:translate-x-0 transition-all duration-500" />
+                    <ArrowRight className="absolute bottom-6 right-6 h-5 w-5 text-gray-300 dark:text-white/0 group-hover:text-gray-600 dark:group-hover:text-white/30 translate-x-2 group-hover:translate-x-0 transition-all duration-500" />
                   </div>
                 )
               })}
@@ -188,10 +188,10 @@ export default function LandingPage() {
         <section id="modules" ref={modRef} className="relative py-32 px-6 lg:px-8 overflow-hidden">
           <div className="relative max-w-7xl mx-auto">
             <div className={`mb-20 transition-all duration-[1.2s] ease-[cubic-bezier(0.16,1,0.3,1)] ${modVis ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'}`}>
-              <p className="text-sm font-bold text-violet-400 tracking-[0.3em] uppercase mb-4">MODULES</p>
-              <h2 className="text-[clamp(2rem,5vw,4rem)] font-black tracking-[-0.03em] leading-[1.05]">
+              <p className="text-sm font-bold text-violet-600 dark:text-violet-400 tracking-[0.3em] uppercase mb-4">MODULES</p>
+              <h2 className="text-[clamp(2rem,5vw,4rem)] font-black tracking-[-0.03em] leading-[1.05] text-gray-900 dark:text-white">
                 EVERY MODULE<br />
-                <span className="bg-gradient-to-r from-violet-400 to-purple-400 bg-clip-text text-transparent">YOUR SCHOOL NEEDS</span>
+                <span className="bg-gradient-to-r from-violet-600 dark:from-violet-400 to-purple-600 dark:to-purple-400 bg-clip-text text-transparent">YOUR SCHOOL NEEDS</span>
               </h2>
             </div>
 

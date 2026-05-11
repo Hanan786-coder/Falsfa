@@ -21,7 +21,7 @@ export default function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [errorMsg, setErrorMsg] = useState('')
 
-  const { register, handleSubmit, setValue, formState: { errors } } = useForm({
+  const { register, handleSubmit, formState: { errors } } = useForm({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
   })
@@ -41,14 +41,14 @@ export default function LoginPage() {
 
 
   return (
-    <div className="min-h-screen bg-[#0a0a1a] text-white flex relative overflow-hidden">
+    <div className="min-h-screen bg-white dark:bg-[#0a0a1a] text-gray-900 dark:text-white flex relative overflow-hidden">
       {/* Background effects */}
       <div className="absolute inset-0">
         <div className="absolute top-20 right-1/4 w-[600px] h-[600px] rounded-full bg-blue-600/8 blur-[120px] animate-[float_8s_ease-in-out_infinite]" />
         <div className="absolute bottom-20 left-1/4 w-[500px] h-[500px] rounded-full bg-indigo-600/8 blur-[120px] animate-[float_10s_ease-in-out_infinite_reverse]" />
       </div>
-      <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.015)_1px,transparent_1px)] bg-[size:60px_60px]" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,#0a0a1a_70%)]" />
+      <div className="absolute inset-0 dark:bg-[linear-gradient(rgba(255,255,255,.015)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.015)_1px,transparent_1px)] dark:bg-[size:60px_60px]" />
+      <div className="absolute inset-0 dark:bg-[radial-gradient(ellipse_at_center,transparent_0%,#0a0a1a_70%)]" />
 
       {/* Left panel - branding (hidden on mobile) */}
       <div className="hidden lg:flex lg:w-1/2 relative items-center justify-center p-12">
@@ -61,16 +61,16 @@ export default function LoginPage() {
           </Link>
           <h2 className="text-4xl font-bold leading-tight mb-6">
             Welcome back to{' '}
-            <span className="bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent">
+            <span className="bg-gradient-to-r from-blue-500 dark:from-blue-400 to-indigo-600 dark:to-indigo-400 bg-clip-text text-transparent">
               Falsfa
             </span>
           </h2>
-          <p className="text-white/40 text-lg leading-relaxed mb-10">
+          <p className="text-gray-700 dark:text-white/40 text-lg leading-relaxed mb-10">
             Multi-Tenant School Management System. Sign in to access your dashboard, manage students, and more.
           </p>
           <div className="space-y-4">
             {['Role-based dashboards', 'Real-time data access', 'Multi-school management'].map((item) => (
-              <div key={item} className="flex items-center gap-3 text-white/50">
+              <div key={item} className="flex items-center gap-3 text-gray-600 dark:text-white/50">
                 <CheckCircle2 className="h-4 w-4 text-emerald-400 shrink-0" />
                 <span className="text-sm">{item}</span>
               </div>
@@ -92,65 +92,63 @@ export default function LoginPage() {
             </Link>
           </div>
 
-          <div className="p-8 rounded-3xl bg-white/[0.03] border border-white/[0.08] backdrop-blur-xl shadow-2xl">
+          <div className="p-8 rounded-3xl bg-white border dark:bg-white/[0.03] dark:border-white/[0.08] backdrop-blur-xl shadow-2xl">
             <div className="mb-8">
-              <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-white/40 hover:text-white/60 transition-colors mb-4">
+              <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-gray-600 dark:text-white/40 hover:text-gray-900 dark:hover:text-white/60 transition-colors mb-4">
                 <ArrowLeft className="h-3.5 w-3.5" /> Back to home
               </Link>
-              <h1 className="text-2xl font-bold mb-2">Sign in</h1>
-              <p className="text-sm text-white/40">Enter your credentials to access your dashboard</p>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Sign in</h1>
+              <p className="text-sm text-gray-600 dark:text-white/40">Enter your credentials to access your dashboard</p>
             </div>
 
             {errorMsg && (
-              <div className="mb-6 p-3 rounded-xl bg-red-500/10 border border-red-500/20 text-sm text-red-400">
+              <div className="mb-6 p-3 rounded-xl bg-red-100 dark:bg-red-500/10 border border-red-300 dark:border-red-500/20 text-sm text-red-700 dark:text-red-400">
                 {errorMsg}
               </div>
             )}
 
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-white/60 text-xs">Email</Label>
+                <Label htmlFor="email" className="text-gray-700 dark:text-white/60 text-xs">Email</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="admin@school.edu"
-                  className="bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-blue-400/50 h-11 rounded-xl"
+                  className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 focus-visible:ring-blue-400/50 h-11 rounded-xl"
                   {...register('email')}
                 />
-                {errors.email && <p className="text-xs text-red-400">{errors.email.message}</p>}
+                {errors.email && <p className="text-xs text-red-600 dark:text-red-400">{errors.email.message}</p>}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-white/60 text-xs">Password</Label>
+                <Label htmlFor="password" className="text-gray-700 dark:text-white/60 text-xs">Password</Label>
                 <div className="relative">
                   <Input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
                     placeholder="••••••••"
-                    className="bg-white/5 border-white/10 text-white placeholder:text-white/20 focus-visible:ring-blue-400/50 h-11 rounded-xl pr-10"
+                    className="bg-white dark:bg-white/5 border-gray-200 dark:border-white/10 text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-white/20 focus-visible:ring-blue-400/50 h-11 rounded-xl pr-10"
                     {...register('password')}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-white/30 hover:text-white/60 transition-colors"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-white/30 hover:text-gray-600 dark:hover:text-white/60 transition-colors"
                   >
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
-                {errors.password && <p className="text-xs text-red-400">{errors.password.message}</p>}
+                {errors.password && <p className="text-xs text-red-600 dark:text-red-400">{errors.password.message}</p>}
               </div>
-              <Button type="submit" disabled={isSubmitting} className="w-full h-11 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 shadow-lg shadow-blue-500/20 text-white">
+              <Button type="submit" disabled={isSubmitting} className="w-full h-11 rounded-xl bg-gradient-to-r from-blue-600 dark:from-blue-500 to-indigo-700 dark:to-indigo-600 hover:from-blue-700 dark:hover:from-blue-600 hover:to-indigo-800 dark:hover:to-indigo-700 shadow-lg shadow-blue-500/20 text-white">
                 {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
                 Sign In
               </Button>
             </form>
 
-
-
             <div className="mt-6 text-center">
-              <p className="text-sm text-white/30">
+              <p className="text-sm text-gray-600 dark:text-white/30">
                 Don't have an account?{' '}
-                <Link to="/register" className="text-blue-400 hover:text-blue-300 font-medium transition-colors">
+                <Link to="/register" className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 font-medium transition-colors">
                   Register your school
                 </Link>
               </p>

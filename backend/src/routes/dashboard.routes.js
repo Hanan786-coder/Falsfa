@@ -5,6 +5,7 @@ const School = require("../models/School");
 const Student = require("../models/Student");
 const User = require("../models/User");
 const AuditLog = require("../models/AuditLog");
+const Attendance = require("../models/Attendance");
 
 router.use(protect);
 
@@ -56,20 +57,69 @@ router.get("/school-stats", async (req, res) => {
     if (req.user.role === "teacher") {
       const Staff = require("../models/Staff");
       const teacher = await Staff.findOne({ user: req.user.id });
-      let myClasses = 0;
+      const assignments = teacher?.assignments || [];
+      const uniqueAssignments = [...new Map(assignments.map(a => [`${a.class}::${a.section}`, a])).values()];
+
+      let myClasses = uniqueAssignments.length;
       let myStudents = 0;
-      if (teacher && teacher.assignments) {
-        myClasses = teacher.assignments.length;
-        const classes = teacher.assignments.map(a => a.class);
-        myStudents = await Student.countDocuments({ school: schoolId, class: { $in: classes }, isActive: true });
+      let pendingTasks = uniqueAssignments.length;
+      let avgAttendance = 100;
+
+      if (uniqueAssignments.length > 0) {
+        const studentQuery = {
+          school: schoolId,
+          isActive: true,
+          $or: uniqueAssignments.map(a => ({ class: a.class, section: a.section })),
+        };
+
+        const students = await Student.find(studentQuery).select("_id").lean();
+        myStudents = new Set(students.map(student => student._id.toString())).size;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const todaysAttendance = await Attendance.find({
+          school: schoolId,
+          takenBy: req.user.id,
+          date: today,
+        }).select("class section").lean();
+
+        const completedTasks = new Set(
+          todaysAttendance.map(record => `${record.class}::${record.section || ''}`)
+        );
+
+        pendingTasks = uniqueAssignments.filter(a => !completedTasks.has(`${a.class}::${a.section || ''}`)).length;
+
+        // Calculate average attendance for this teacher's classes over the last 30 days
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        
+        const recentAttendances = await Attendance.find({
+          school: schoolId,
+          date: { $gte: thirtyDaysAgo },
+          $or: uniqueAssignments.map(a => ({ class: a.class, section: a.section }))
+        }).lean();
+
+        let totalRecords = 0;
+        let presentCount = 0;
+
+        recentAttendances.forEach(att => {
+          att.records.forEach(r => {
+            totalRecords++;
+            if (r.status === 'present') presentCount++;
+          });
+        });
+
+        const avgAttendance = totalRecords > 0 ? Math.round((presentCount / totalRecords) * 100) : 100;
+
       }
       return res.json({
         success: true,
         data: {
           myClasses,
           myStudents,
-          pendingTasks: 2,
-          avgAttendance: 88,
+          pendingTasks,
+          avgAttendance,
           schoolName: school?.name || "",
         },
       });

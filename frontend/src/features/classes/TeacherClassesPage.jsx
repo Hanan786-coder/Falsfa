@@ -102,7 +102,7 @@ export default function TeacherClassesPage() {
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground mb-1">Class {assignment.section}</p>
+                      <p className="text-sm font-medium text-muted-foreground mb-1">Section {assignment.section}</p>
                       <h3 className="text-3xl font-bold">{assignment.class}</h3>
                     </div>
                     <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">

@@ -15,7 +15,6 @@ import {
   Building,
   Settings,
   CheckCircle,
-  FileText,
   CreditCard,
   Bell,
   BarChart2,
@@ -27,22 +26,15 @@ export default function DashboardPage() {
   const { user } = useAuth()
   const navigate = useNavigate()
   const [stats, setStats] = useState(null)
-  const [recentActivities, setRecentActivities] = useState([])
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     const fetchStats = async () => {
       try {
         const endpoint = userRole === 'superadmin' ? '/dashboard/stats' : '/dashboard/school-stats'
-        const [statsRes, activityRes] = await Promise.all([
-          api.get(endpoint),
-          api.get('/dashboard/recent-activity')
-        ])
+        const statsRes = await api.get(endpoint)
         if (statsRes.data.success) {
           setStats(statsRes.data.data)
-        }
-        if (activityRes.data.success) {
-          setRecentActivities(activityRes.data.data)
         }
       } catch (err) {
         console.error('Failed to fetch dashboard stats:', err)
@@ -119,7 +111,7 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-6">
-      <div className="rounded-2xl bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border p-6">
+      <div className="rounded-2xl bg-linear-to-r from-primary/10 via-primary/5 to-transparent border p-6">
         <h1 className="text-2xl font-bold">Welcome back, {user?.name || 'User'}! 👋</h1>
         <p className="text-muted-foreground mt-1">
           {userRole === 'superadmin' ? 'Falsfa SaaS' : schoolConfig?.name} — {roleLabels[userRole] || "Here's what's happening today"}
@@ -155,47 +147,17 @@ export default function DashboardPage() {
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-2">
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Activity className="h-5 w-5 text-primary" /> Recent Activity
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              {recentActivities.length > 0 ? (
-                recentActivities.map((activity) => (
-                  <div key={activity.id} className="flex items-start gap-3 pb-3 border-b last:border-0 last:pb-0">
-                    <span className="text-lg mt-0.5">{activity.icon || '📌'}</span>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm">{activity.text}</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        {new Date(activity.timestamp).toLocaleString()}
-                      </p>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-sm text-muted-foreground text-center py-8">
-                  <Activity className="h-8 w-8 text-muted-foreground/30 mx-auto mb-3" />
-                  No recent activities to show
-                </div>
-              )}
-            </div>
-          </CardContent>
-        </Card>
-
+      <div className="grid gap-6">
         {QUICK_ACTIONS.length > 0 && (
           <Card>
             <CardHeader><CardTitle className="text-lg">Quick Actions</CardTitle></CardHeader>
             <CardContent>
-              <div className="grid grid-cols-2 gap-3">
+              <div className={`grid gap-3 ${userRole === 'teacher' ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-2 lg:grid-cols-3'}`}>
                 {QUICK_ACTIONS.map((action, i) => (
                   <button 
                     key={`${action.label}-${i}`} 
                     onClick={() => action.path && navigate(action.path)}
-                    className={`flex items-center gap-3 rounded-xl bg-gradient-to-br ${action.color} border p-4 text-left hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer`}
+                    className={`flex items-center gap-3 rounded-xl bg-linear-to-br ${action.color} border p-4 text-left hover:shadow-md transition-all duration-200 hover:-translate-y-0.5 cursor-pointer`}
                   >
                     <div className="bg-white/50 dark:bg-black/20 p-2 rounded-lg">
                       {action.icon}

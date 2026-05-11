@@ -16,19 +16,10 @@ const connectDB = async () => {
       return;
     } catch (err) {
       console.warn(`⚠️  Could not connect to ${dbUri}: ${err.message}`);
-      console.log("🔄 Falling back to in-memory MongoDB...");
+  
     }
-
-    // Fallback: use mongodb-memory-server for development
-    const { MongoMemoryServer } = require("mongodb-memory-server");
-    mongoServer = await MongoMemoryServer.create();
-    const memoryUri = mongoServer.getUri();
-
-    const conn = await mongoose.connect(memoryUri);
-    console.log(`MongoDB In-Memory Connected: ${conn.connection.host}`);
-    console.log("⚡ Note: Data will be lost when the server restarts.");
-  } catch (error) {
-    console.error(`MongoDB Connection Error: ${error.message}`);
+  } catch (err) {
+    console.error(`Failed to connect to MongoDB: ${err.message}`);
     process.exit(1);
   }
 };
