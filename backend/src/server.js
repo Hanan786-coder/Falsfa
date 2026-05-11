@@ -29,19 +29,19 @@ const analyticsRoutes = require('./routes/analytics.routes');
 const reportRoutes = require('./routes/report.routes');
 
 // Mount routes
-app.use('/api/auth', authRoutes);
-app.use('/api/schools', schoolRoutes);
-app.use('/api/staff', staffRoutes);
-app.use('/api/students', studentRoutes);
-app.use('/api/attendance', attendanceRoutes);
-app.use('/api/exams', examRoutes);
-app.use('/api/dashboard', dashboardRoutes);
-app.use('/api/audit-logs', auditLogRoutes);
-app.use('/api/fees', feeRoutes);
-app.use('/api/notifications', notificationRoutes);
-app.use('/api/classes', classRoutes);
-app.use('/api/analytics', analyticsRoutes);
-app.use('/api/reports', reportRoutes);
+app.use(['/api/auth', '/auth'], authRoutes);
+app.use(['/api/schools', '/schools'], schoolRoutes);
+app.use(['/api/staff', '/staff'], staffRoutes);
+app.use(['/api/students', '/students'], studentRoutes);
+app.use(['/api/attendance', '/attendance'], attendanceRoutes);
+app.use(['/api/exams', '/exams'], examRoutes);
+app.use(['/api/dashboard', '/dashboard'], dashboardRoutes);
+app.use(['/api/audit-logs', '/audit-logs'], auditLogRoutes);
+app.use(['/api/fees', '/fees'], feeRoutes);
+app.use(['/api/notifications', '/notifications'], notificationRoutes);
+app.use(['/api/classes', '/classes'], classRoutes);
+app.use(['/api/analytics', '/analytics'], analyticsRoutes);
+app.use(['/api/reports', '/reports'], reportRoutes);
 
 app.get('/', (req, res) => {
   res.send('SaaS API is running');
