@@ -7,13 +7,7 @@
     },
     "backend": {
       "entrypoint": "backend",
-      "routePrefix": "/api"
+      "routePrefix": "/_/backend"
     }
-  },
-  "rewrites": [
-    {
-      "source": "/_/backend/(.*)",
-      "destination": "/api/$1"
-    }
-  ]
+  }
 }
