@@ -45,10 +45,12 @@ exports.login = async (req, res) => {
     const user = await User.findOne({ email }).select("+password").populate("school", "name code logo customClasses customSections customSubjects");
 
     if (!user) {
+      console.warn(`Login attempt with non-existent email: ${email}`);
       return res.status(401).json({ success: false, message: "Invalid credentials" });
     }
 
     if (!user.isActive) {
+      console.warn(`Login attempt with deactivated account: ${email}`);
       return res.status(401).json({ success: false, message: "Account is deactivated" });
     }
 

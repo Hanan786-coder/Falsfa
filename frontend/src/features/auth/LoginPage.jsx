@@ -34,6 +34,7 @@ export default function LoginPage() {
       navigate('/dashboard')
     } catch (err) {
       setErrorMsg(err?.response?.data?.message || 'Invalid credentials')
+      console.error('Login failed:', err.message)
     } finally {
       setIsSubmitting(false)
     }
