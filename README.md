@@ -1,12 +1,17 @@
-# Falsfa
+# 🎓 Falsfa SaaS
+
+[![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](#)
+[![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](#)
+[![MongoDB](https://img.shields.io/badge/MongoDB-4EA94B?style=for-the-badge&logo=mongodb&logoColor=white)](#)
+[![Vite](https://img.shields.io/badge/Vite-B73BFE?style=for-the-badge&logo=vite&logoColor=FFD62E)](#)
 
 A multi-tenant **School Management SaaS** built on the MERN stack. Falsfa gives schools a unified platform to manage students, staff, attendance, exams, and finances — all under one roof, with role-based access for super admins, school admins, and teachers.
 
-🔗 **Live Demo:** [falsfa-theta.vercel.app](https://falsfa-theta.vercel.app)
+🔗 **Live Demo:** [falsfaa.vercel.app](https://falsfaa.vercel.app)
 
 ---
 
-## What It Does
+## 🚀 What It Does
 
 | Module | Description |
 |---|---|
@@ -22,7 +27,7 @@ A multi-tenant **School Management SaaS** built on the MERN stack. Falsfa gives 
 
 ---
 
-## Tech Stack
+## 🛠️ Tech Stack
 
 **Backend**
 - Node.js + Express.js — REST API server
@@ -40,7 +45,7 @@ A multi-tenant **School Management SaaS** built on the MERN stack. Falsfa gives 
 
 ---
 
-## Project Structure
+## 📂 Project Structure
 
 ```
 Falsfa/
@@ -63,7 +68,7 @@ Falsfa/
 
 ---
 
-## Data Models
+## 🗄️ Data Models
 
 The backend is built around these core Mongoose models:
 
@@ -71,7 +76,7 @@ The backend is built around these core Mongoose models:
 
 ---
 
-## Reports Module
+## 📈 Reports Module
 
 One of the heavier backend features — three report types powered by MongoDB aggregation pipelines:
 
@@ -86,7 +91,7 @@ Groups fee records by month and class, computes collection rates with `$divide` 
 
 ---
 
-## Getting Started
+## 🏁 Getting Started
 
 ### Prerequisites
 
@@ -94,25 +99,22 @@ Groups fee records by month and class, computes collection rates with `$divide` 
 - MongoDB Atlas account (or local MongoDB)
 - npm
 
-### Setup
+### ⚙️ Setup
 
 ```bash
 # Clone the repo
 git clone https://github.com/Hanan786-coder/Falsfa.git
 cd Falsfa
 
-# Install root dependencies
+# Install dependencies for both frontend and backend automatically via npm workspaces
 npm install
 
-# Backend
+# Setup environment variables
 cd backend
-npm install
 cp .env.example .env        # fill in MONGO_URI, JWT_SECRET, PORT
-npm run dev
+cd ..
 
-# Frontend (new terminal)
-cd ../frontend
-npm install
+# Run both backend and frontend concurrently
 npm run dev
 ```
 
@@ -120,7 +122,7 @@ The backend runs on `http://localhost:5000` and the frontend on `http://localhos
 
 ---
 
-## API Overview
+## 🛣️ API Overview
 
 | Method | Route | Access |
 |---|---|---|
@@ -135,7 +137,7 @@ All protected routes require a `Bearer <token>` header.
 
 ---
 
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repo
 2. Create a feature branch: `git checkout -b feature/your-feature`
@@ -144,12 +146,12 @@ All protected routes require a `Bearer <token>` header.
 
 ---
 
-## Author
+## ✍️ Author
 
 **Abdul Hanan** — [github.com/Hanan786-coder](https://github.com/Hanan786-coder)
 
 ---
 
-## License
+## 📝 License
 
 MIT
