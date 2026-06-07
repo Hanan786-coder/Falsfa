@@ -1,26 +1,30 @@
 // config/db.js - MongoDB Database Connection
-// Supports both a real MongoDB URI and an in-memory server for development.
+// Supports Vercel serverless (connection caching) and local development.
 
 const mongoose = require("mongoose");
 
-let mongoServer = null; // Holds the MongoMemoryServer instance
+let isConnected = false; // Cache connection state across warm invocations
 
 const connectDB = async () => {
-  try {
-    let dbUri = process.env.MONGODB_URI || process.env.MONGO_URI;
+  // If already connected (warm serverless invocation), skip
+  if (isConnected || mongoose.connection.readyState === 1) {
+    return;
+  }
 
-    // Attempt connection to the configured URI first
-    try {
-      const conn = await mongoose.connect(dbUri);
-      console.log(`MongoDB Connected: ${conn.connection.host}`);
-      return;
-    } catch (err) {
-      console.warn(`⚠️  Could not connect to ${dbUri}: ${err.message}`);
-  
+  try {
+    const dbUri = process.env.MONGODB_URI || process.env.MONGO_URI;
+
+    if (!dbUri) {
+      throw new Error("MONGODB_URI environment variable is not set");
     }
+
+    const conn = await mongoose.connect(dbUri);
+    isConnected = true;
+    console.log(`MongoDB Connected: ${conn.connection.host}`);
   } catch (err) {
     console.error(`Failed to connect to MongoDB: ${err.message}`);
-    process.exit(1);
+    // In serverless, don't kill the process — throw so the request gets a 500
+    throw err;
   }
 };
 
