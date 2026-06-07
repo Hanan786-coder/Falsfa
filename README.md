@@ -1,4 +1,4 @@
-# 🎓 Falsfa SaaS
+# Falsfa SaaS
 
 [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](#)
 [![Node.js](https://img.shields.io/badge/Node.js-339933?style=for-the-badge&logo=nodedotjs&logoColor=white)](#)
@@ -11,7 +11,7 @@ A multi-tenant **School Management SaaS** built on the MERN stack. Falsfa gives 
 
 ---
 
-## 🚀 What It Does
+## What It Does
 
 | Module | Description |
 |---|---|
@@ -27,7 +27,7 @@ A multi-tenant **School Management SaaS** built on the MERN stack. Falsfa gives 
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 **Backend**
 - Node.js + Express.js — REST API server
@@ -45,7 +45,7 @@ A multi-tenant **School Management SaaS** built on the MERN stack. Falsfa gives 
 
 ---
 
-## 📂 Project Structure
+## Project Structure
 
 ```
 Falsfa/
@@ -68,7 +68,7 @@ Falsfa/
 
 ---
 
-## 🗄️ Data Models
+## Data Models
 
 The backend is built around these core Mongoose models:
 
@@ -76,7 +76,7 @@ The backend is built around these core Mongoose models:
 
 ---
 
-## 📈 Reports Module
+## Reports Module
 
 One of the heavier backend features — three report types powered by MongoDB aggregation pipelines:
 
@@ -91,7 +91,7 @@ Groups fee records by month and class, computes collection rates with `$divide` 
 
 ---
 
-## 🏁 Getting Started
+## Getting Started
 
 ### Prerequisites
 
@@ -99,7 +99,7 @@ Groups fee records by month and class, computes collection rates with `$divide` 
 - MongoDB Atlas account (or local MongoDB)
 - npm
 
-### ⚙️ Setup
+### Setup
 
 ```bash
 # Clone the repo
@@ -122,7 +122,7 @@ The backend runs on `http://localhost:5000` and the frontend on `http://localhos
 
 ---
 
-## 🛣️ API Overview
+## API Overview
 
 | Method | Route | Access |
 |---|---|---|
@@ -137,7 +137,7 @@ All protected routes require a `Bearer <token>` header.
 
 ---
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repo
 2. Create a feature branch: `git checkout -b feature/your-feature`
@@ -146,12 +146,12 @@ All protected routes require a `Bearer <token>` header.
 
 ---
 
-## ✍️ Author
+## Author
 
 **Abdul Hanan** — [github.com/Hanan786-coder](https://github.com/Hanan786-coder)
 
 ---
 
-## 📝 License
+## License
 
 MIT
