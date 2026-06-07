@@ -3,11 +3,11 @@
   "outputDirectory": "frontend/dist",
   "rewrites": [
     {
-      "source": "/api/(.*)",
+      "source": "/_/backend/:path*",
       "destination": "/backend/src/server.js"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!_/backend).*)",
       "destination": "/index.html"
     }
   ]
