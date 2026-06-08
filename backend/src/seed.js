@@ -273,7 +273,7 @@ async function seed() {
       school: school1._id,
       action: "STUDENT_ADDED",
       entity: "Student",
-      description: "Added 40 new students to various classes"
+      description: "Added 40 students to various classes"
     },
     {
       actor: schooladmin._id,
